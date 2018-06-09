@@ -41,6 +41,10 @@ public class UsersDataSet implements Serializable {
         return this.name;
     }
 
+    public boolean matchPassword(String password) {
+        return this.password.equals(password);
+    }
+
     @Override
     public String toString() {
         return "UserDataSet{"

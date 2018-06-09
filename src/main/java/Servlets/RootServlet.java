@@ -1,6 +1,12 @@
 package Servlets;
 
+import Helpers.ServletUtils;
+import dbService.DBException;
+import dbService.DBService;
+import dbService.DataServices.UsersDataSet;
+
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -9,10 +15,28 @@ import java.io.IOException;
 // JSP looks like a huge headache - could not figure out how to set it up
 
 public class RootServlet extends HttpServlet {
+    private final DBService dbService;
+
+    public RootServlet(DBService dbService) { this.dbService = dbService; }
+
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
+
         String user = "";
+        String sessionCookie = ServletUtils.getCookie(req, "uId");
+        if (sessionCookie != null) {
+            try {
+                UsersDataSet usersDataSet = dbService.getUserBySession(sessionCookie);
+                if (usersDataSet != null) {
+                    user = usersDataSet.getName();
+                }
+            } catch (DBException e) {
+                e.printStackTrace();
+            }
+        }
+
         resp.getWriter().println(
             "<!DOCTYPE html>" +
             "<html>" +

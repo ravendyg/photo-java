@@ -1,6 +1,8 @@
 package dbService;
 
+import dbService.DataServices.SessionsDataSet;
 import dbService.DataServices.UsersDataSet;
+import dbService.dao.SessionDAO;
 import dbService.dao.UserDAO;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -62,18 +64,6 @@ public class DBService {
         }
     }
 
-    public UsersDataSet getUser(String name, String password) throws DBException {
-        try {
-            Session session = sessionFactory.openSession();
-            UserDAO dao = new UserDAO(session);
-            UsersDataSet dataSet = dao.get(name, password);
-            session.close();
-            return dataSet;
-        } catch (HibernateException e) {
-            throw new DBException(e);
-        }
-    }
-
     public UsersDataSet createUser(String name, String password) throws DBException {
         try {
             Session session = sessionFactory.openSession();
@@ -88,9 +78,60 @@ public class DBService {
         }
     }
 
+    public SessionsDataSet getSession(String cookie) throws DBException {
+        try {
+            Session session = sessionFactory.openSession();
+            SessionDAO dao = new SessionDAO(session);
+            SessionsDataSet sessionsDataSet = dao.getSession(cookie);
+            session.close();
+
+            return sessionsDataSet;
+        } catch (HibernateException e) {
+            throw new DBException(e);
+        }
+    }
+
+    public UsersDataSet getUserBySession(String cookie) throws DBException {
+        try {
+            Session session = sessionFactory.openSession();
+            SessionDAO dao = new SessionDAO(session);
+            UsersDataSet usersDataSet = dao.getUser(cookie);
+
+            return usersDataSet;
+        } catch (HibernateException e) {
+            throw new DBException(e);
+        }
+    }
+
+    public void createSession(UsersDataSet user, String cookie) throws DBException {
+        try {
+            Session session = sessionFactory.openSession();
+            Transaction transaction = session.beginTransaction();
+            SessionDAO dao = new SessionDAO(session);
+            dao.createSession(user, cookie);
+            transaction.commit();
+            session.close();
+        } catch (HibernateException e) {
+            throw new DBException(e);
+        }
+    }
+
+    public void deleteSession(SessionsDataSet sessionsDataSet) throws DBException {
+        try {
+            Session session = sessionFactory.openSession();
+            Transaction transaction = session.beginTransaction();
+            session.delete(sessionsDataSet);
+            transaction.commit();
+            session.close();
+        } catch (HibernateException e) {
+            throw new DBException(e);
+        }
+    }
+
     private Configuration getMysqlConfiguration() {
         Configuration configuration = new Configuration();
         configuration.addAnnotatedClass(UsersDataSet.class);
+        configuration.addAnnotatedClass(SessionsDataSet.class);
 
         configuration.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
         configuration.setProperty("hibernate.connection.driver_class", "com.mysql.jdbc.Driver");

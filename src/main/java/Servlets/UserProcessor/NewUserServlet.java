@@ -1,5 +1,7 @@
 package Servlets.UserProcessor;
 
+import Helpers.ServletUtils;
+import Helpers.Utils;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import dbService.DBException;
@@ -7,6 +9,7 @@ import dbService.DBService;
 import dbService.DataServices.UsersDataSet;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -21,6 +24,8 @@ public class NewUserServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        resp.setContentType("application/json;charset=utf-8");
+
         String name = req.getParameter("name");
         String password = req.getParameter("pas");
         String password2 = req.getParameter("pas2");
@@ -38,19 +43,25 @@ public class NewUserServlet extends HttpServlet {
         try {
             UsersDataSet usersDataSet = dbService.getUser(name);
             if (usersDataSet != null) {
-                resp.sendError(HttpServletResponse.SC_CONFLICT);
+                JsonObject jo = new JsonObject();
+                jo.addProperty("error", "Already exists");
+                String joStr = jo.toString();
+                resp.getWriter().println(joStr);
+
+                resp.setStatus(HttpServletResponse.SC_CONFLICT);
                 return;
             }
 
             UsersDataSet user = dbService.createUser(name, password);
-            System.out.println(user.toString());
+
+            ServletUtils.addExpirationCookie(dbService, user, remember, resp);
 
             JsonObject jo = new JsonObject();
             jo.addProperty("result", "User created");
             jo.addProperty("name", user.getName());
             String joStr = jo.toString();
             resp.getWriter().println(joStr);
-            resp.setContentType("application/json;charset=utf-8");
+
             resp.setStatus(HttpServletResponse.SC_OK);
         } catch (DBException e) {
             e.printStackTrace();
