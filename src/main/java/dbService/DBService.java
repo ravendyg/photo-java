@@ -1,7 +1,9 @@
 package dbService;
 
+import dbService.DataServices.ImageDataSet;
 import dbService.DataServices.SessionsDataSet;
 import dbService.DataServices.UsersDataSet;
+import dbService.dao.ImageDAO;
 import dbService.dao.SessionDAO;
 import dbService.dao.UserDAO;
 import org.hibernate.HibernateException;
@@ -15,6 +17,7 @@ import org.hibernate.service.ServiceRegistry;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 
 public class DBService {
     private static final String hibernate_show_sql = "true";
@@ -128,10 +131,53 @@ public class DBService {
         }
     }
 
+    public void deleteUser(UsersDataSet user) throws DBException {
+        try {
+            Session session = sessionFactory.openSession();
+            Transaction transaction = session.beginTransaction();
+            session.delete(user);
+            transaction.commit();
+            session.close();
+        } catch (HibernateException e) {
+            throw new DBException(e);
+        }
+    }
+
+    public List<ImageDataSet> getUserPhotos(UsersDataSet user) throws DBException {
+        try {
+            Session session = sessionFactory.openSession();
+            Transaction transaction = session.beginTransaction();
+            ImageDAO dao = new ImageDAO((session));
+            List<ImageDataSet> images = dao.get(user);
+            transaction.commit();
+            session.close();
+            return images;
+        } catch (HibernateException e) {
+            throw new DBException(e);
+        }
+    }
+
+    public long addPhoto(UsersDataSet user, String src) throws DBException {
+        try {
+            Session session = sessionFactory.openSession();
+            Transaction transaction = session.beginTransaction();
+            ImageDAO dao = new ImageDAO(session);
+            // title and description will be updated later
+            ImageDataSet image = new ImageDataSet(user, src, "", "");
+            long id = dao.add(image);
+            transaction.commit();
+            session.close();
+            return id;
+        } catch (HibernateException e) {
+            throw new DBException(e);
+        }
+    }
+
     private Configuration getMysqlConfiguration() {
         Configuration configuration = new Configuration();
         configuration.addAnnotatedClass(UsersDataSet.class);
         configuration.addAnnotatedClass(SessionsDataSet.class);
+        configuration.addAnnotatedClass(ImageDataSet.class);
 
         configuration.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
         configuration.setProperty("hibernate.connection.driver_class", "com.mysql.jdbc.Driver");

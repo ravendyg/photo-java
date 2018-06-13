@@ -34,12 +34,14 @@ public class UsersDataSet implements Serializable {
     }
 
     public long getId() {
-        return this.id;
+        return id;
     }
 
     public String getName() {
-        return this.name;
+        return name;
     }
+
+    public String getDir() { return dir; }
 
     public boolean matchPassword(String password) {
         return this.password.equals(password);
@@ -50,6 +52,7 @@ public class UsersDataSet implements Serializable {
         return "UserDataSet{"
                 + "id=" + id
                 + ", name='" + name + "'"
+                + ", dir='" + dir + "'"
                 + '}';
 
     }

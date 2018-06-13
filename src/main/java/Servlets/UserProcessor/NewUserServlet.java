@@ -1,25 +1,26 @@
 package Servlets.UserProcessor;
 
+import Helpers.AppConfig;
 import Helpers.ServletUtils;
-import Helpers.Utils;
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import dbService.DBException;
 import dbService.DBService;
 import dbService.DataServices.UsersDataSet;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
 
 public class NewUserServlet extends HttpServlet {
     private final DBService dbService;
+    private final AppConfig appConfig;
 
-    public NewUserServlet(DBService dbService) {
+    public NewUserServlet(DBService dbService, AppConfig appConfig) {
         this.dbService = dbService;
+        this.appConfig = appConfig;
     }
 
     @Override
@@ -53,19 +54,26 @@ public class NewUserServlet extends HttpServlet {
             }
 
             UsersDataSet user = dbService.createUser(name, password);
+            File file = new File(appConfig.getUserPhotoDirectory() + user.getDir());
+            if (!file.exists()) {
+                if (file.mkdir()) {
+                    ServletUtils.addExpirationCookie(dbService, user, remember, resp);
 
-            ServletUtils.addExpirationCookie(dbService, user, remember, resp);
+                    JsonObject jo = new JsonObject();
+                    jo.addProperty("result", "User created");
+                    jo.addProperty("name", user.getName());
+                    String joStr = jo.toString();
+                    resp.getWriter().println(joStr);
 
-            JsonObject jo = new JsonObject();
-            jo.addProperty("result", "User created");
-            jo.addProperty("name", user.getName());
-            String joStr = jo.toString();
-            resp.getWriter().println(joStr);
-
-            resp.setStatus(HttpServletResponse.SC_OK);
+                    resp.setStatus(HttpServletResponse.SC_OK);
+                    return;
+                }
+            }
+            dbService.deleteUser(user);
         } catch (DBException e) {
             e.printStackTrace();
-            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
+
+        resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
     }
 }
