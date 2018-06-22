@@ -1,11 +1,8 @@
 package dbService;
 
-import dbService.DataServices.ImageDataSet;
-import dbService.DataServices.SessionsDataSet;
-import dbService.DataServices.UsersDataSet;
-import dbService.dao.ImageDAO;
-import dbService.dao.SessionDAO;
-import dbService.dao.UserDAO;
+import DTO.ImageDTO;
+import dbService.DataServices.*;
+import dbService.dao.*;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -17,11 +14,12 @@ import org.hibernate.service.ServiceRegistry;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class DBService {
     private static final String hibernate_show_sql = "true";
-    private static final String hibernate_hbm2ddl_auto = "update";
+    private static final String hibernate_hbm2ddl_auto = "validate";
 
     private final SessionFactory sessionFactory;
 
@@ -143,15 +141,34 @@ public class DBService {
         }
     }
 
-    public List<ImageDataSet> getUserPhotos(UsersDataSet user) throws DBException {
+    public List<ImageDTO> getPhotos() throws DBException {
         try {
             Session session = sessionFactory.openSession();
             Transaction transaction = session.beginTransaction();
-            ImageDAO dao = new ImageDAO((session));
-            List<ImageDataSet> images = dao.get(user);
+            ImageDAO imageDAO = new ImageDAO(session);
+            CommentDAO commentDAO = new CommentDAO(session);
+            RatingDAO ratingDAO = new RatingDAO(session);
+            List<ImageDataSet> images = imageDAO.get();
+            List<ImageDTO> imageDTOs = new ArrayList<>();
+            // think about a way to optimize this
+            for (ImageDataSet imageDataSet : images) {
+                List<CommentsDataSet> commentsDataSets = commentDAO.getByImage(imageDataSet);
+                List<RatingDataSet> ratingDataSets = ratingDAO.get(imageDataSet);
+                imageDTOs.add(new ImageDTO(imageDataSet, commentsDataSets, ratingDataSets));
+            }
             transaction.commit();
             session.close();
-            return images;
+            return imageDTOs;
+        } catch (HibernateException e) {
+            throw new DBException(e);
+        }
+    }
+
+    public CommentsDataSet addComment(UsersDataSet user, String text, Long image) throws DBException {
+        try {
+            Session session = sessionFactory.openSession();
+            CommentDAO commentDAO = new CommentDAO(session);
+            return commentDAO.insert(user, text, image);
         } catch (HibernateException e) {
             throw new DBException(e);
         }
@@ -178,6 +195,7 @@ public class DBService {
         configuration.addAnnotatedClass(UsersDataSet.class);
         configuration.addAnnotatedClass(SessionsDataSet.class);
         configuration.addAnnotatedClass(ImageDataSet.class);
+        configuration.addAnnotatedClass(CommentsDataSet.class);
 
         configuration.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
         configuration.setProperty("hibernate.connection.driver_class", "com.mysql.jdbc.Driver");

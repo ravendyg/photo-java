@@ -1,15 +1,12 @@
 package Helpers;
 
-import com.google.gson.Gson;
 import dbService.DBException;
 import dbService.DBService;
-import dbService.DataServices.ImageDataSet;
 import dbService.DataServices.UsersDataSet;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.List;
 
 public class ServletUtils {
     public static void addExpirationCookie(
@@ -37,6 +34,9 @@ public class ServletUtils {
 
     public static String getCookie(HttpServletRequest req, String key) {
         Cookie[] cookies = req.getCookies();
+        if (cookies == null) {
+            return null;
+        }
         for (Cookie cookie : cookies) {
             if (cookie.getName().equals(key)) {
                 return cookie.getValue();

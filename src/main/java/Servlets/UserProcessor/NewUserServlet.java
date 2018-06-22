@@ -54,22 +54,16 @@ public class NewUserServlet extends HttpServlet {
             }
 
             UsersDataSet user = dbService.createUser(name, password);
-            File file = new File(appConfig.getUserPhotoDirectory() + user.getDir());
-            if (!file.exists()) {
-                if (file.mkdir()) {
-                    ServletUtils.addExpirationCookie(dbService, user, remember, resp);
+            ServletUtils.addExpirationCookie(dbService, user, remember, resp);
 
-                    JsonObject jo = new JsonObject();
-                    jo.addProperty("result", "User created");
-                    jo.addProperty("name", user.getName());
-                    String joStr = jo.toString();
-                    resp.getWriter().println(joStr);
+            JsonObject jo = new JsonObject();
+            jo.addProperty("result", "User created");
+            jo.addProperty("name", user.getName());
+            String joStr = jo.toString();
+            resp.getWriter().println(joStr);
 
-                    resp.setStatus(HttpServletResponse.SC_OK);
-                    return;
-                }
-            }
-            dbService.deleteUser(user);
+            resp.setStatus(HttpServletResponse.SC_OK);
+            return;
         } catch (DBException e) {
             e.printStackTrace();
         }

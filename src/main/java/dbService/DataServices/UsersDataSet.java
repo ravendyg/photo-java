@@ -15,6 +15,7 @@ public class UsersDataSet implements Serializable {
     @Column(name = "name", unique = true, updatable = false)
     private String name;
 
+    // not sure why it is needed
     @Column(name = "dir", unique = true, updatable = false)
     private String dir;
 

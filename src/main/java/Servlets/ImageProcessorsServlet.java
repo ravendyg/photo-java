@@ -1,9 +1,11 @@
 package Servlets;
 
+import DTO.ImageDTO;
 import Helpers.AppConfig;
 import Helpers.ServletUtils;
 import Helpers.Utils;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import dbService.DBException;
 import dbService.DBService;
@@ -14,9 +16,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.Part;
 import java.io.*;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ImageProcessorsServlet extends HttpServlet {
@@ -41,10 +41,12 @@ public class ImageProcessorsServlet extends HttpServlet {
             if (sessionCookie != null) {
                 try {
                     UsersDataSet user = dbService.getUserBySession(sessionCookie);
-                    List<ImageDataSet> images;
+                    List<ImageDTO> images;
                     if (user != null) {
-                        images = dbService.getUserPhotos(user);
-                        String json = new Gson().toJson(images);
+                        images = dbService.getPhotos();
+                        GsonBuilder gsonBuilder = new GsonBuilder();
+                        gsonBuilder.serializeNulls();
+                        String json = gsonBuilder.create().toJson(images);
                         resp.getWriter().println(json);
                         resp.setStatus(HttpServletResponse.SC_OK);
                     }
@@ -75,10 +77,10 @@ public class ImageProcessorsServlet extends HttpServlet {
                 // TODO: add conversion to "png"
                 String src = Utils.getRandom() + ".png";
 
-                String destination = appConfig.getUserPhotoDirectory() + user.getDir() + "/" + src;
+                String destination = appConfig.getUserPhotoDirectory() + src;
                 InputStream input = req.getInputStream();
                 output = new FileOutputStream(destination);
-                int read = 0;
+                int read;
                 byte[] bytes = new byte[1024];
                 while ((read = input.read(bytes)) != -1) {
                     output.write(bytes, 0, read);
