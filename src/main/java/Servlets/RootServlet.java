@@ -30,6 +30,7 @@ public class RootServlet extends HttpServlet {
                 UsersDataSet usersDataSet = dbService.getUserBySession(sessionCookie);
                 if (usersDataSet != null) {
                     user = usersDataSet.getName();
+                    req.getSession().setAttribute("user", usersDataSet);
                 }
             } catch (DBException e) {
                 e.printStackTrace();

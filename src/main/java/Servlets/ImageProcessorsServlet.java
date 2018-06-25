@@ -40,7 +40,8 @@ public class ImageProcessorsServlet extends HttpServlet {
             String sessionCookie = ServletUtils.getCookie(req, "uId");
             if (sessionCookie != null) {
                 try {
-                    UsersDataSet user = dbService.getUserBySession(sessionCookie);
+//                    UsersDataSet user = dbService.getUserBySession(sessionCookie);
+                    UsersDataSet user = (UsersDataSet) req.getSession().getAttribute("user");
                     List<ImageDTO> images;
                     if (user != null) {
                         images = dbService.getPhotos();

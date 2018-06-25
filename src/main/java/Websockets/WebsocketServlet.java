@@ -15,6 +15,6 @@ public class WebsocketServlet extends WebSocketServlet {
     @Override
     public void configure(WebSocketServletFactory factory) {
         factory.getPolicy().setIdleTimeout(LOGOUT_TIME);
-        factory.setCreator((req, resp) -> new WSHandler(wsService));
+        factory.setCreator((req, resp) -> new WSHandler(wsService, req));
     }
 }
