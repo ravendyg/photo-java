@@ -1,5 +1,7 @@
 package Helpers;
 
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import dbService.DBException;
 import dbService.DBService;
 import dbService.DataServices.UsersDataSet;
@@ -59,4 +61,19 @@ public class ServletUtils {
         return user;
     }
 
+    public static boolean Respond(HttpServletResponse resp, Object response) {
+        resp.setContentType("application/json;charset=utf-8");
+
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.serializeNulls();
+        String json = gsonBuilder.create().toJson(response);
+        try {
+            resp.getWriter().println(json);
+            resp.setStatus(HttpServletResponse.SC_OK);
+            return true;
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        return false;
+    }
 }

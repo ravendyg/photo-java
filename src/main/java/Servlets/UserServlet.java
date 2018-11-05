@@ -1,8 +1,12 @@
-package Servlets.UserProcessor;
+package Servlets;
 
+import DTO.ResponseWrapper;
+import DTO.UserDTO;
 import Helpers.AppConfig;
 import Helpers.ServletUtils;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import dbService.DBException;
 import dbService.DBService;
 import dbService.DataServices.UsersDataSet;
@@ -11,31 +15,47 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 
-public class NewUserServlet extends HttpServlet {
+public class UserServlet extends HttpServlet {
     private final DBService dbService;
     private final AppConfig appConfig;
 
-    public NewUserServlet(DBService dbService, AppConfig appConfig) {
+    public UserServlet(DBService dbService, AppConfig appConfig) {
         this.dbService = dbService;
         this.appConfig = appConfig;
     }
 
     @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        resp.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED);
+    }
+
+    @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        resp.setContentType("application/json;charset=utf-8");
+        String name = null;
+        String password = null;
+        boolean remember = false;
 
-        String name = req.getParameter("name");
-        String password = req.getParameter("pas");
-        String password2 = req.getParameter("pas2");
-        String rem = req.getParameter("rem");
-        Boolean remember = rem != null && rem.equals("true");
+        StringBuffer jb = new StringBuffer();
+        String line = null;
+        try {
+            BufferedReader reader = req.getReader();
+            while ((line = reader.readLine()) != null) {
+                jb.append(line);
+            }
+            JsonElement el = (new JsonParser()).parse(jb.toString());
+            JsonObject obj = el.getAsJsonObject();
+            name = obj.get("login").getAsString();
+            password = obj.get("pas").getAsString();
+            remember = obj.get("rem").getAsBoolean();
+        } catch (Exception e) { /*report an error*/ }
 
-        if (name == null || password == null || password2 == null
+        if (name == null
+                || password == null
                 || name.matches(".*[^0-1a-zA-Z\\\\s].*")
-                || !password.equals(password2)
                 || password.matches("\\s")) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
             return;
@@ -55,19 +75,20 @@ public class NewUserServlet extends HttpServlet {
 
             UsersDataSet user = dbService.createUser(name, password);
             ServletUtils.addExpirationCookie(dbService, user, remember, resp);
+            ResponseWrapper<UserDTO> response = new ResponseWrapper<>(new UserDTO(user), "", 200);
 
-            JsonObject jo = new JsonObject();
-            jo.addProperty("result", "User created");
-            jo.addProperty("name", user.getName());
-            String joStr = jo.toString();
-            resp.getWriter().println(joStr);
-
-            resp.setStatus(HttpServletResponse.SC_OK);
-            return;
+            if (ServletUtils.Respond(resp, response)) {
+                return;
+            }
         } catch (DBException e) {
             e.printStackTrace();
         }
 
         resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        resp.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED);
     }
 }

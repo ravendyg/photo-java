@@ -1,11 +1,5 @@
 import Helpers.AppConfig;
-import Servlets.NotFoundServlet;
-import Servlets.RootServlet;
-import Servlets.ImageProcessorsServlet;
-import Servlets.UserProcessor.NewUserServlet;
-import Servlets.UserProcessor.SignInServlet;
-import Servlets.UserProcessorServlet;
-import Websockets.WebsocketServlet;
+import Servlets.*;
 import dbService.DBService;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -17,8 +11,7 @@ import java.io.FileReader;
 
 public class Main {
     final static int PORT = 4001;
-    final static String ROOT_PATH = "";
-    final static String USER_PROCESSOR = "/user-processor/*";
+    final static String USER_ROUTE = "/java/user";
     // refactor out
 //    final static String NEW_USER_PATH = "/user-processor/new-user";
     // refactor out
@@ -43,16 +36,14 @@ public class Main {
 
         ServletContextHandler contextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
 
-        Servlet rootServlet = new RootServlet(dbService);
-//        Servlet newUser = new NewUserServlet(dbService, appConfig);
+        Servlet userRouter = new UserServlet(dbService, appConfig);
 //        Servlet signIn = new SignInServlet(dbService);
 //        Servlet userProcessorServlet = new UserProcessorServlet(dbService);
 //        Servlet imageProcessorServlet = new ImageProcessorsServlet(dbService, appConfig);
 //        Servlet webSocketServlet = new WebsocketServlet();
         Servlet notFoundServlet = new NotFoundServlet();
 
-//        contextHandler.addServlet(new ServletHolder(rootServlet), ROOT_PATH);
-//        contextHandler.addServlet(new ServletHolder(newUser), NEW_USER_PATH);
+        contextHandler.addServlet(new ServletHolder(userRouter), USER_ROUTE);
 //        contextHandler.addServlet(new ServletHolder(signIn), SIGN_IN_PATH);
 //        contextHandler.addServlet(new ServletHolder(userProcessorServlet), USER_PROCESSOR);
 //        contextHandler.addServlet(new ServletHolder(imageProcessorServlet), IMAGE_PROCESSOR);
