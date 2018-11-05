@@ -1,7 +1,9 @@
 package Helpers;
 
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import dbService.DBException;
 import dbService.DBService;
 import dbService.DataServices.UsersDataSet;
@@ -9,6 +11,7 @@ import dbService.DataServices.UsersDataSet;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedReader;
 
 public class ServletUtils {
     public static void addExpirationCookie(
@@ -61,7 +64,7 @@ public class ServletUtils {
         return user;
     }
 
-    public static boolean Respond(HttpServletResponse resp, Object response) {
+    public static void respond(HttpServletResponse resp, Object response) {
         resp.setContentType("application/json;charset=utf-8");
 
         GsonBuilder gsonBuilder = new GsonBuilder();
@@ -70,10 +73,31 @@ public class ServletUtils {
         try {
             resp.getWriter().println(json);
             resp.setStatus(HttpServletResponse.SC_OK);
-            return true;
+        } catch (Exception e) {
+            try {
+                resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            } catch (Exception er) {
+                System.out.println(er);
+            }
+            System.out.println(e);
+        }
+    }
+
+    public static JsonObject parseJsonBody(HttpServletRequest req) {
+        JsonObject obj = null;
+        StringBuffer jb = new StringBuffer();
+        String line = null;
+        try {
+            BufferedReader reader = req.getReader();
+            while ((line = reader.readLine()) != null) {
+                jb.append(line);
+            }
+            JsonElement el = (new JsonParser()).parse(jb.toString());
+            obj = el.getAsJsonObject();
         } catch (Exception e) {
             System.out.println(e);
         }
-        return false;
+
+        return obj;
     }
 }
