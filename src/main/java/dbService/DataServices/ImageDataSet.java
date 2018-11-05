@@ -1,5 +1,8 @@
 package dbService.DataServices;
 
+import Data.PhotoRequest;
+import Helpers.Utils;
+
 import javax.persistence.*;
 import java.io.Serializable;
 
@@ -11,78 +14,79 @@ public class ImageDataSet implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    public long getId() {
-        return id;
-    }
+    @Column(name = "iid", unique = true, updatable = false, columnDefinition = "char(64)")
+    private String iid;
 
-//    @Column(name = "uploaded_by")
+    @Column(name = "ext", unique = true, updatable = false, columnDefinition = "char(5)")
+    private String ext;
+
+    @Column(name = "description")
+    private String description;
+
+    @Column(name = "title")
+    private String title;
+
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "uploaded_by")
     private UsersDataSet uploadedBy;
 
-    public UsersDataSet getUploadedBy() {
-        return uploadedBy;
+    @Column(name = "uploaded")
+    private long uploaded;
+
+    @Column(name = "changed")
+    private Long changed;
+
+    @Column(name = "views")
+    private long views;
+
+
+    public long getId() {
+        return id;
     }
 
-    @Column(name = "src")
-    private String src;
-
-    public String getSrc() {
-        return src;
+    public String getIid() {
+        return iid;
     }
 
-    @Column(name = "title")
-    private String title;
+    public String getExt() {
+        return ext;
+    }
 
     public String getTitle() {
         return title;
     }
 
-    @Column(name = "desription")
-    private String description;
-
     public String getDescription() {
         return description;
     }
 
-    @Column(name = "uploaded")
-    private long uploaded;
+    public UsersDataSet getUploadedBy() {
+        return uploadedBy;
+    }
 
     public long getUploaded() {
         return uploaded;
     }
 
-    @Column(name = "changed")
-    private long changed;
-
     public long getChanged() {
         return changed;
     }
-
-    @Column(name = "changed_by")
-    private Long changedBy;
-
-    public Long getChangedBy() {
-        return changedBy;
-    }
-
-    @Column(name = "views")
-    private long views;
 
     public long getViews() {
         return views;
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public ImageDataSet() {}
 
-    public ImageDataSet(UsersDataSet uploadedBy, String src, String title, String description) {
-        this.uploadedBy = uploadedBy;
-        this.src = src;
-        this.title = title;
-        this.description = description;
+    public ImageDataSet(PhotoRequest request) {
+        this.iid = request.getIid();
+        this.ext = request.getExt();
+        this.description = request.getDescription();
+        this.title = request.getTitle();
+        this.uploadedBy = request.getUploadedBy();
         this.uploaded = System.currentTimeMillis();
-        this.changed = this.uploaded;
-        this.changedBy = null;
+        this.changed = null;
         this.views = 0;
     }
 }

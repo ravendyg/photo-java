@@ -1,6 +1,7 @@
 package dbService;
 
 import DTO.ImageDTO;
+import Data.PhotoRequest;
 import dbService.DataServices.*;
 import dbService.dao.*;
 import org.hibernate.HibernateException;
@@ -141,7 +142,7 @@ public class DBService {
         }
     }
 
-    public List<ImageDTO> getPhotos() throws DBException {
+    public List<ImageDTO> getPhotos(UsersDataSet user) throws DBException {
         try {
             Session session = sessionFactory.openSession();
             Transaction transaction = session.beginTransaction();
@@ -154,7 +155,14 @@ public class DBService {
             for (ImageDataSet imageDataSet : images) {
                 List<CommentsDataSet> commentsDataSets = commentDAO.getByImage(imageDataSet);
                 List<RatingDataSet> ratingDataSets = ratingDAO.get(imageDataSet);
-                imageDTOs.add(new ImageDTO(imageDataSet, commentsDataSets, ratingDataSets));
+                int userRating = 0;
+                for (RatingDataSet ratingDataSet : ratingDataSets) {
+                    if (ratingDataSet.getUser() == user.getId()) {
+                        userRating = ratingDataSet.getValue();
+                        break;
+                    }
+                }
+                imageDTOs.add(new ImageDTO(imageDataSet, commentsDataSets, ratingDataSets, userRating));
             }
             transaction.commit();
             session.close();
@@ -174,13 +182,12 @@ public class DBService {
         }
     }
 
-    public long addPhoto(UsersDataSet user, String src) throws DBException {
+    public long addPhoto(PhotoRequest photoRequest) throws DBException {
         try {
             Session session = sessionFactory.openSession();
             Transaction transaction = session.beginTransaction();
             ImageDAO dao = new ImageDAO(session);
-            // title and description will be updated later
-            ImageDataSet image = new ImageDataSet(user, src, "", "");
+            ImageDataSet image = new ImageDataSet(photoRequest);
             long id = dao.add(image);
             transaction.commit();
             session.close();

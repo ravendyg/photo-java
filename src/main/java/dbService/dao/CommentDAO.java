@@ -28,7 +28,7 @@ public class CommentDAO {
             String text,
             Long image
     ) throws HibernateException {
-        CommentsDataSet comment = new CommentsDataSet(user, text, image);
+        CommentsDataSet comment = new CommentsDataSet(text, user, image);
         session.save(comment);
         return comment;
     }

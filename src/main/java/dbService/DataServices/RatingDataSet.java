@@ -14,18 +14,22 @@ public class RatingDataSet implements Serializable {
     @Column(name = "user")
     private Long user;
 
-    public Long getValue() {
-        return value;
-    }
-
     @Column(name = "value")
-    private Long value;
+    private int value;
 
     @Column(name = "date")
     private long date;
 
     @Column(name = "image")
     private Long image;
+
+    public Long getUser() {
+        return user;
+    }
+
+    public int getValue() {
+        return value;
+    }
 
     public RatingDataSet() {}
 }

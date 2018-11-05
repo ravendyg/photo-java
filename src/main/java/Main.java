@@ -20,11 +20,11 @@ public class Main {
     final static String ROOT_PATH = "";
     final static String USER_PROCESSOR = "/user-processor/*";
     // refactor out
-    final static String NEW_USER_PATH = "/user-processor/new-user";
+//    final static String NEW_USER_PATH = "/user-processor/new-user";
     // refactor out
-    final static String SIGN_IN_PATH = "/user-processor/sign-in";
-    final static String IMAGE_PROCESSOR = "/image-processor/*";
-    final static String WEBSOCKET_ENDPOINT = "/socket";
+//    final static String SIGN_IN_PATH = "/user-processor/sign-in";
+//    final static String IMAGE_PROCESSOR = "/image-processor/*";
+//    final static String WEBSOCKET_ENDPOINT = "/socket";
 
     public static void main(String[] args) throws Exception {
         DBService dbService = new DBService();
@@ -44,19 +44,19 @@ public class Main {
         ServletContextHandler contextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
 
         Servlet rootServlet = new RootServlet(dbService);
-        Servlet newUser = new NewUserServlet(dbService, appConfig);
-        Servlet signIn = new SignInServlet(dbService);
+//        Servlet newUser = new NewUserServlet(dbService, appConfig);
+//        Servlet signIn = new SignInServlet(dbService);
+//        Servlet userProcessorServlet = new UserProcessorServlet(dbService);
+//        Servlet imageProcessorServlet = new ImageProcessorsServlet(dbService, appConfig);
+//        Servlet webSocketServlet = new WebsocketServlet();
         Servlet notFoundServlet = new NotFoundServlet();
-        Servlet userProcessorServlet = new UserProcessorServlet(dbService);
-        Servlet imageProcessorServlet = new ImageProcessorsServlet(dbService, appConfig);
-        Servlet webSocketServlet = new WebsocketServlet();
 
-        contextHandler.addServlet(new ServletHolder(rootServlet), ROOT_PATH);
-        contextHandler.addServlet(new ServletHolder(newUser), NEW_USER_PATH);
-        contextHandler.addServlet(new ServletHolder(signIn), SIGN_IN_PATH);
-        contextHandler.addServlet(new ServletHolder(userProcessorServlet), USER_PROCESSOR);
-        contextHandler.addServlet(new ServletHolder(imageProcessorServlet), IMAGE_PROCESSOR);
-        contextHandler.addServlet(new ServletHolder(webSocketServlet), WEBSOCKET_ENDPOINT);
+//        contextHandler.addServlet(new ServletHolder(rootServlet), ROOT_PATH);
+//        contextHandler.addServlet(new ServletHolder(newUser), NEW_USER_PATH);
+//        contextHandler.addServlet(new ServletHolder(signIn), SIGN_IN_PATH);
+//        contextHandler.addServlet(new ServletHolder(userProcessorServlet), USER_PROCESSOR);
+//        contextHandler.addServlet(new ServletHolder(imageProcessorServlet), IMAGE_PROCESSOR);
+//        contextHandler.addServlet(new ServletHolder(webSocketServlet), WEBSOCKET_ENDPOINT);
 
         contextHandler.addServlet((new ServletHolder(notFoundServlet)), "/");
 

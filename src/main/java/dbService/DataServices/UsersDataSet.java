@@ -1,9 +1,10 @@
 package dbService.DataServices;
 
+import Helpers.Utils;
+
 import javax.persistence.*;
 import java.io.Serializable;
 
-// TODO: implement correct data type with dir and hash instead of a plain text pasword
 @Entity
 @Table(name="users")
 public class UsersDataSet implements Serializable {
@@ -12,49 +13,41 @@ public class UsersDataSet implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "name", unique = true, updatable = false)
+    @Column(name = "uid", unique = true, updatable = false, columnDefinition = "char(64)")
+    private String uid;
+
+    @Column(name = "name", unique = true, updatable = false, columnDefinition = "char(64)")
     private String name;
 
-    // not sure why it is needed
-    @Column(name = "dir", unique = true, updatable = false)
-    private String dir;
-
-    @Column(name = "password")
+    @Column(name = "password", columnDefinition = "char(64)")
     private String password;
 
-    @SuppressWarnings("UnusedDeclaration")
-    public UsersDataSet() {
-    }
-
-    public UsersDataSet(String name, String password) {
-        this.id = -1;
-        this.name = name;
-        // TODO: change to hide user name
-        this.dir = name;
-        this.password = password;
-    }
 
     public long getId() {
         return id;
+    }
+
+    public String getUid() {
+        return uid;
     }
 
     public String getName() {
         return name;
     }
 
-    public String getDir() { return dir; }
+    @SuppressWarnings("UnusedDeclaration")
+    public UsersDataSet() {
+    }
+
+    public UsersDataSet(String name, String password) {
+//        this.id = -1;
+        this.name = name;
+        String uid = Utils.getUid();
+        this.uid = uid;
+        this.password = Utils.getPasswordHash(uid, password);
+    }
 
     public boolean matchPassword(String password) {
         return this.password.equals(password);
-    }
-
-    @Override
-    public String toString() {
-        return "UserDataSet{"
-                + "id=" + id
-                + ", name='" + name + "'"
-                + ", dir='" + dir + "'"
-                + '}';
-
     }
 }

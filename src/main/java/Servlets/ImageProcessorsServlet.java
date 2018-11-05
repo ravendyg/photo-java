@@ -1,6 +1,7 @@
 package Servlets;
 
 import DTO.ImageDTO;
+import Data.PhotoRequest;
 import Helpers.AppConfig;
 import Helpers.ServletUtils;
 import Helpers.Utils;
@@ -44,7 +45,7 @@ public class ImageProcessorsServlet extends HttpServlet {
                     UsersDataSet user = (UsersDataSet) req.getSession().getAttribute("user");
                     List<ImageDTO> images;
                     if (user != null) {
-                        images = dbService.getPhotos();
+                        images = dbService.getPhotos(user);
                         GsonBuilder gsonBuilder = new GsonBuilder();
                         gsonBuilder.serializeNulls();
                         String json = gsonBuilder.create().toJson(images);
@@ -87,7 +88,8 @@ public class ImageProcessorsServlet extends HttpServlet {
                     output.write(bytes, 0, read);
                 }
 
-                dbService.addPhoto(user, src);
+                PhotoRequest photoRequest = new PhotoRequest("png", "description", "title", user);
+                dbService.addPhoto(photoRequest);
 
                 JsonObject jo = new JsonObject();
                 jo.addProperty("filename", src);

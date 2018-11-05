@@ -18,6 +18,11 @@ public class SessionsDataSet implements Serializable {
     @JoinColumn(name = "user")
     private UsersDataSet user;
 
+    public UsersDataSet getUser() {
+        return this.user;
+    }
+
+    @SuppressWarnings("UnusedDeclaration")
     public SessionsDataSet() {}
 
     // TODO: add created time
@@ -25,9 +30,5 @@ public class SessionsDataSet implements Serializable {
     public SessionsDataSet(UsersDataSet user, String cookie) {
         this.user = user;
         this.cookie = cookie;
-    }
-
-    public UsersDataSet getUser() {
-        return this.user;
     }
 }
