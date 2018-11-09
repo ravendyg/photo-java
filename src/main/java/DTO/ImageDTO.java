@@ -5,6 +5,7 @@ import dbService.DataServices.ImageDataSet;
 import dbService.DataServices.RatingDataSet;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 public class ImageDTO implements Serializable {
@@ -13,8 +14,8 @@ public class ImageDTO implements Serializable {
     private String description;
     private String title;
     private String uploadedBy;
-    private long uploaded;
-    private long changed;
+    private Date uploaded;
+    private Date changed;
     private int commentCount;
     private long averageRating;
     private int ratingCount;

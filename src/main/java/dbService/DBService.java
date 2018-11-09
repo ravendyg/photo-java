@@ -80,56 +80,6 @@ public class DBService {
         }
     }
 
-    public SessionsDataSet getSession(String cookie) throws DBException {
-        try {
-            Session session = sessionFactory.openSession();
-            SessionDAO dao = new SessionDAO(session);
-            SessionsDataSet sessionsDataSet = dao.getSession(cookie);
-            session.close();
-
-            return sessionsDataSet;
-        } catch (HibernateException e) {
-            throw new DBException(e);
-        }
-    }
-
-    public UsersDataSet getUserBySession(String cookie) throws DBException {
-        try {
-            Session session = sessionFactory.openSession();
-            SessionDAO dao = new SessionDAO(session);
-            UsersDataSet usersDataSet = dao.getUser(cookie);
-
-            return usersDataSet;
-        } catch (HibernateException e) {
-            throw new DBException(e);
-        }
-    }
-
-    public void createSession(UsersDataSet user, String cookie) throws DBException {
-        try {
-            Session session = sessionFactory.openSession();
-            Transaction transaction = session.beginTransaction();
-            SessionDAO dao = new SessionDAO(session);
-            dao.createSession(user, cookie);
-            transaction.commit();
-            session.close();
-        } catch (HibernateException e) {
-            throw new DBException(e);
-        }
-    }
-
-    public void deleteSession(SessionsDataSet sessionsDataSet) throws DBException {
-        try {
-            Session session = sessionFactory.openSession();
-            Transaction transaction = session.beginTransaction();
-            session.delete(sessionsDataSet);
-            transaction.commit();
-            session.close();
-        } catch (HibernateException e) {
-            throw new DBException(e);
-        }
-    }
-
     public void deleteUser(UsersDataSet user) throws DBException {
         try {
             Session session = sessionFactory.openSession();
@@ -200,7 +150,6 @@ public class DBService {
     private Configuration getMysqlConfiguration() {
         Configuration configuration = new Configuration();
         configuration.addAnnotatedClass(UsersDataSet.class);
-        configuration.addAnnotatedClass(SessionsDataSet.class);
         configuration.addAnnotatedClass(ImageDataSet.class);
         configuration.addAnnotatedClass(CommentsDataSet.class);
 

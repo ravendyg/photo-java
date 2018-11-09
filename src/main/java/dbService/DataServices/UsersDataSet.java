@@ -40,7 +40,6 @@ public class UsersDataSet implements Serializable {
     }
 
     public UsersDataSet(String name, String password) {
-//        this.id = -1;
         this.name = name;
         String uid = Utils.getUid();
         this.uid = uid;

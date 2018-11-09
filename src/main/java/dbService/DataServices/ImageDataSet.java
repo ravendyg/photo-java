@@ -5,6 +5,7 @@ import Helpers.Utils;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Date;
 
 @Entity
 @Table(name = "images")
@@ -30,11 +31,11 @@ public class ImageDataSet implements Serializable {
     @JoinColumn(name = "uploaded_by")
     private UsersDataSet uploadedBy;
 
-    @Column(name = "uploaded")
-    private long uploaded;
+    @Column(name = "uploaded", columnDefinition = "DATETIME")
+    private Date uploaded;
 
-    @Column(name = "changed")
-    private Long changed;
+    @Column(name = "changed", columnDefinition = "DATETIME")
+    private Date changed;
 
     @Column(name = "views")
     private long views;
@@ -64,11 +65,11 @@ public class ImageDataSet implements Serializable {
         return uploadedBy;
     }
 
-    public long getUploaded() {
+    public Date getUploaded() {
         return uploaded;
     }
 
-    public long getChanged() {
+    public Date getChanged() {
         return changed;
     }
 
@@ -85,7 +86,7 @@ public class ImageDataSet implements Serializable {
         this.description = request.getDescription();
         this.title = request.getTitle();
         this.uploadedBy = request.getUploadedBy();
-        this.uploaded = System.currentTimeMillis();
+        this.uploaded = new Date();
         this.changed = null;
         this.views = 0;
     }

@@ -4,6 +4,7 @@ import Helpers.Utils;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Date;
 
 @Entity
 @Table(name = "comments")
@@ -16,8 +17,8 @@ public class CommentsDataSet implements Serializable {
     @Column(name = "cid", unique = true, updatable = false, columnDefinition = "char(64)")
     private String cid;
 
-    @Column(name = "date")
-    private long date;
+    @Column(name = "date", columnDefinition = "DATETIME")
+    private Date date;
 
     @Column(name = "text")
     private String text;
@@ -34,7 +35,7 @@ public class CommentsDataSet implements Serializable {
             Long image
     ) {
         this.cid = Utils.getUid();
-        this.date = System.currentTimeMillis();
+        this.date = new Date();
         this.text = text;
         this.user = user.getId();
         this.image = image;
