@@ -2,6 +2,7 @@ package dbService;
 
 import DTO.ImageDTO;
 import Data.PhotoRequest;
+import Helpers.Utils;
 import dbService.DataServices.*;
 import dbService.dao.*;
 import org.hibernate.HibernateException;
@@ -66,12 +67,12 @@ public class DBService {
         }
     }
 
-    public UsersDataSet createUser(String name, String password) throws DBException {
+    public UsersDataSet createUser(String uid, String name, String passwordHash) throws DBException {
         try {
             Session session = sessionFactory.openSession();
             Transaction transaction = session.beginTransaction();
             UserDAO dao = new UserDAO(session);
-            UsersDataSet usersDataSet = dao.insetUser(name, password);
+            UsersDataSet usersDataSet = dao.insertUser(uid, name, passwordHash);
             transaction.commit();
             session.close();
             return usersDataSet;
@@ -122,11 +123,16 @@ public class DBService {
         }
     }
 
-    public CommentsDataSet addComment(UsersDataSet user, String text, Long image) throws DBException {
+    public CommentsDataSet addComment(
+            UsersDataSet user,
+            String cid,
+            String text,
+            Long image
+    ) throws DBException {
         try {
             Session session = sessionFactory.openSession();
             CommentDAO commentDAO = new CommentDAO(session);
-            return commentDAO.insert(user, text, image);
+            return commentDAO.insert(user, cid, text, image);
         } catch (HibernateException e) {
             throw new DBException(e);
         }

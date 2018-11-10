@@ -30,11 +30,12 @@ public class CommentsDataSet implements Serializable {
     private Long user;
 
     public CommentsDataSet(
+            String cid,
             String text,
             UsersDataSet user,
             Long image
     ) {
-        this.cid = Utils.getUid();
+        this.cid = cid;
         this.date = new Date();
         this.text = text;
         this.user = user.getId();

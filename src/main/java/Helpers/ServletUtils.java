@@ -14,20 +14,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 
 public class ServletUtils {
-    public static void addExpirationCookie(
-            DBService dbService,
-            UsersDataSet user,
-            Boolean remember,
-            HttpServletResponse resp
-    ) throws DBException {
-        String cookieStr = user.getName() + "|" + Utils.getRandom();
-
-        Cookie cookie = new Cookie("uId", cookieStr);
-        cookie.setPath("/");
-        cookie.setMaxAge(remember ? Utils.TEN_DAYS : -1);
-        resp.addCookie(cookie);
-    }
-
     public static void dropCookie(HttpServletRequest req, HttpServletResponse resp, String key) {
         Cookie cookie = new Cookie(key, null);
         cookie.setPath("/");

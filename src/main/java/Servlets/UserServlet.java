@@ -4,6 +4,7 @@ import DTO.ResponseWrapper;
 import DTO.UserDTO;
 import Helpers.AppConfig;
 import Helpers.ServletUtils;
+import Helpers.Utils;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -20,16 +21,45 @@ import java.io.IOException;
 
 public class UserServlet extends HttpServlet {
     private final DBService dbService;
-    private final AppConfig appConfig;
+    private final Utils utils;
 
-    public UserServlet(DBService dbService, AppConfig appConfig) {
+    public UserServlet(DBService dbService, Utils utils) {
         this.dbService = dbService;
-        this.appConfig = appConfig;
+        this.utils = utils;
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        resp.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED);
+        ResponseWrapper<Object> response;
+
+        String login = req.getHeader("login");
+        String password = req.getHeader("pas");
+
+        if (login == null || password == null) {
+            response = new ResponseWrapper<>(null, "Missing data", 400);
+            ServletUtils.respond(resp, response);
+            return;
+        }
+
+        try {
+            UsersDataSet usersDataSet = dbService.getUser(login);
+            if (usersDataSet == null) {
+                response = new ResponseWrapper<>(null, "User not found", 404);
+            } else {
+                String passwordHash = utils.getPasswordHash(usersDataSet.getUid(), password);
+                if (!usersDataSet.matchPassword(passwordHash)) {
+                    response = new ResponseWrapper<>(null, "Incorrect password", 401);
+                } else {
+                    String token = utils.createGwt(usersDataSet);
+                    response = new ResponseWrapper<>(token, "", 200);
+                }
+            }
+        } catch (DBException e) {
+            e.printStackTrace();
+            response = new ResponseWrapper<>(null, "Server error", 500);
+        }
+
+        ServletUtils.respond(resp, response);
     }
 
     @Override
@@ -38,21 +68,16 @@ public class UserServlet extends HttpServlet {
 
         String name = null;
         String password = null;
-        boolean remember = false;
 
         JsonObject body = ServletUtils.parseJsonBody(req);
         try {
             name = body.get("login").getAsString();
             password = body.get("pas").getAsString();
-            remember = body.get("rem").getAsBoolean();
         } catch (Exception e) {
             System.out.println(e);
         }
 
-        if (name == null
-                || password == null
-                || name.matches(".*[^0-1a-zA-Z\\\\s].*")
-                || password.matches("\\s")) {
+        if (name == null || password == null) {
             response = new ResponseWrapper<>(null, "Missing data", 400);
             ServletUtils.respond(resp, response);
             return;
@@ -61,26 +86,19 @@ public class UserServlet extends HttpServlet {
         try {
             UsersDataSet usersDataSet = dbService.getUser(name);
             if (usersDataSet != null) {
-                JsonObject jo = new JsonObject();
-                jo.addProperty("error", "Already exists");
-                String joStr = jo.toString();
-                resp.getWriter().println(joStr);
-
-                resp.setStatus(HttpServletResponse.SC_CONFLICT);
-                return;
+                response = new ResponseWrapper<>(null, "User already exists", 409);
+            } else {
+                String uid = utils.getUid();
+                String passwordHash = utils.getPasswordHash(uid, password);
+                usersDataSet = dbService.createUser(uid, name, passwordHash);
+                String token = utils.createGwt(usersDataSet);
+                response = new ResponseWrapper<>(token, "", 200);
             }
-
-            UsersDataSet user = dbService.createUser(name, password);
-            ServletUtils.addExpirationCookie(dbService, user, remember, resp);
-
-            response = new ResponseWrapper<>(new UserDTO(user), "", 200);
-            ServletUtils.respond(resp, response);
-            return;
         } catch (DBException e) {
             e.printStackTrace();
+            response = new ResponseWrapper<>(null, "Server error", 500);
         }
 
-        response = new ResponseWrapper<>(null, "Server error", 500);
         ServletUtils.respond(resp, response);
     }
 

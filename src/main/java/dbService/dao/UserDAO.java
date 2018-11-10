@@ -32,8 +32,9 @@ public class UserDAO {
                 .uniqueResult());
     }
 
-    public UsersDataSet insetUser(String name, String password) throws HibernateException {
-        long id = (long) session.save(new UsersDataSet(name, password));
-        return get(id);
+    public UsersDataSet insertUser(String uid, String name, String passwordHash) throws HibernateException {
+        UsersDataSet usersDataSet = new UsersDataSet(uid, name, passwordHash);
+        session.save(usersDataSet);
+        return usersDataSet;
     }
 }

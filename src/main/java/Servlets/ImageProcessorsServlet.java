@@ -23,13 +23,15 @@ import java.util.List;
 public class ImageProcessorsServlet extends HttpServlet {
     private final DBService dbService;
     private final AppConfig appConfig;
+    private final Utils utils;
 
     private final static String ALL_IMAGES = "/all-images";
     private final static String UPLOAD_IMAGE = "/upload-image";
 
-    public ImageProcessorsServlet(DBService dbService, AppConfig appConfig) {
+    public ImageProcessorsServlet(DBService dbService, AppConfig appConfig, Utils utils) {
         this.dbService = dbService;
         this.appConfig = appConfig;
+        this.utils = utils;
     }
 
     @Override
@@ -77,7 +79,7 @@ public class ImageProcessorsServlet extends HttpServlet {
             FileOutputStream output = null;
             try {
                 // TODO: add conversion to "png"
-                String src = Utils.getRandom() + ".png";
+                String src = utils.getRandom() + ".png";
 
                 String destination = appConfig.getUserPhotoDirectory() + src;
                 InputStream input = req.getInputStream();
@@ -88,7 +90,14 @@ public class ImageProcessorsServlet extends HttpServlet {
                     output.write(bytes, 0, read);
                 }
 
-                PhotoRequest photoRequest = new PhotoRequest("png", "description", "title", user);
+                String iid = utils.getUid();
+                PhotoRequest photoRequest = new PhotoRequest(
+                        iid,
+                        "png",
+                        "description",
+                        "title",
+                        user
+                );
                 dbService.addPhoto(photoRequest);
 
                 JsonObject jo = new JsonObject();

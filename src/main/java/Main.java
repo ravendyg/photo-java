@@ -1,4 +1,5 @@
 import Helpers.AppConfig;
+import Helpers.Utils;
 import Servlets.*;
 import dbService.DBService;
 import org.eclipse.jetty.server.Server;
@@ -32,11 +33,12 @@ public class Main {
             sb.append(line);
         }
         AppConfig appConfig = new AppConfig(sb.toString());
+        Utils utils = new Utils(appConfig);
 
 
         ServletContextHandler contextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
 
-        Servlet userRouter = new UserServlet(dbService, appConfig);
+        Servlet userRouter = new UserServlet(dbService, utils);
 //        Servlet signIn = new SignInServlet(dbService);
 //        Servlet userProcessorServlet = new UserProcessorServlet(dbService);
 //        Servlet imageProcessorServlet = new ImageProcessorsServlet(dbService, appConfig);

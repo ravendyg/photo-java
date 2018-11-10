@@ -25,10 +25,11 @@ public class CommentDAO {
 
     public CommentsDataSet insert(
             UsersDataSet user,
+            String cid,
             String text,
             Long image
     ) throws HibernateException {
-        CommentsDataSet comment = new CommentsDataSet(text, user, image);
+        CommentsDataSet comment = new CommentsDataSet(cid, text, user, image);
         session.save(comment);
         return comment;
     }

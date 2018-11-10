@@ -22,7 +22,6 @@ public class UsersDataSet implements Serializable {
     @Column(name = "password", columnDefinition = "char(64)")
     private String password;
 
-
     public long getId() {
         return id;
     }
@@ -39,11 +38,10 @@ public class UsersDataSet implements Serializable {
     public UsersDataSet() {
     }
 
-    public UsersDataSet(String name, String password) {
+    public UsersDataSet(String uid, String name, String passwordHash) {
         this.name = name;
-        String uid = Utils.getUid();
         this.uid = uid;
-        this.password = Utils.getPasswordHash(uid, password);
+        this.password = passwordHash;
     }
 
     public boolean matchPassword(String password) {

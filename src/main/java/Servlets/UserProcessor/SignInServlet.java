@@ -42,7 +42,6 @@ public class SignInServlet extends HttpServlet {
 
                     resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 } else {
-                    ServletUtils.addExpirationCookie(dbService, user, remember, resp);
 
                     JsonObject jo = new JsonObject();
                     jo.addProperty("result", "LogedIn");

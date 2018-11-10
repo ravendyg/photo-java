@@ -31,12 +31,13 @@ public class PhotoRequest {
     }
 
     public PhotoRequest(
+            String iid,
             String ext,
             String description,
             String title,
             UsersDataSet uploadedBy
     ) {
-        this.iid = Utils.getUid();
+        this.iid = iid;
         this.ext = ext;
         this.description = description;
         this.title = title;
