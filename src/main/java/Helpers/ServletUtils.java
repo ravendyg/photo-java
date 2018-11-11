@@ -8,37 +8,39 @@ import dbService.DBException;
 import dbService.DBService;
 import dbService.DataServices.UsersDataSet;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 
 public class ServletUtils {
-    public static void dropCookie(HttpServletRequest req, HttpServletResponse resp, String key) {
-        Cookie cookie = new Cookie(key, null);
-        cookie.setPath("/");
-        cookie.setMaxAge(0);
-        resp.addCookie(cookie);
+    private final DBService dbService;
+    private final Utils utils;
+
+    public ServletUtils(DBService dbService, Utils utils) {
+        this.dbService = dbService;
+        this.utils = utils;
     }
 
-    public static String getCookie(HttpServletRequest req, String key) {
-        Cookie[] cookies = req.getCookies();
-        if (cookies == null) {
+    public UsersDataSet getUser(HttpServletRequest req) {
+        String token = req.getHeader("token");
+        return getUser(token);
+    }
+
+    public UsersDataSet getUser(String token) {
+        if (token == null) {
             return null;
         }
-        for (Cookie cookie : cookies) {
-            if (cookie.getName().equals(key)) {
-                return cookie.getValue();
-            }
+
+        String uid = utils.getUidFromGwt(token);
+        if (uid == null) {
+            return null;
         }
 
-        return null;
-    }
+        try {
+            return dbService.getUserByUid(uid);
+        } catch (DBException e) {}
 
-    public static UsersDataSet getUser(DBService dbService, HttpServletRequest req) {
-        String sessionCookie = ServletUtils.getCookie(req, "uId");
-        UsersDataSet user = null;
-        return user;
+        return null;
     }
 
     public static void respond(HttpServletResponse resp, Object response) {

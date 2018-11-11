@@ -17,20 +17,13 @@ public class CommentDAO {
 
     public List<CommentsDataSet> getByImage(ImageDataSet image) throws HibernateException {
         Criteria criteria = session.createCriteria(CommentsDataSet.class);
-        List list = criteria
+        List<CommentsDataSet> list = criteria
                 .add(Restrictions.eq("image", image.getId()))
                 .list();
-        return ((List<CommentsDataSet>) list);
+        return list;
     }
 
-    public CommentsDataSet insert(
-            UsersDataSet user,
-            String cid,
-            String text,
-            Long image
-    ) throws HibernateException {
-        CommentsDataSet comment = new CommentsDataSet(cid, text, user, image);
-        session.save(comment);
-        return comment;
+    public void insert(CommentsDataSet commentsDataSet) throws HibernateException {
+        session.save(commentsDataSet);
     }
 }

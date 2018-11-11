@@ -23,8 +23,6 @@ public class UserProcessorServlet extends HttpServlet {
 
         if (pathInfo.equals(SIGN_OUT)) {
             resp.setStatus(HttpServletResponse.SC_OK);
-
-            ServletUtils.dropCookie(req, resp, "uId");
         } else {
             resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
         }

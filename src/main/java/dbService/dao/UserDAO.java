@@ -13,28 +13,26 @@ public class UserDAO {
         this.session = session;
     }
 
-    public UsersDataSet get(long id) throws HibernateException {
+    public UsersDataSet getById(long id) throws HibernateException {
         return (UsersDataSet) session.get(UsersDataSet.class, id);
     }
 
-    public UsersDataSet get(String name) throws HibernateException {
-        Criteria criteria = session.createCriteria(UsersDataSet.class);
-        return ((UsersDataSet) criteria
-                .add(Restrictions.eq("name", name))
-                .uniqueResult());
+    public UsersDataSet getByName(String name) throws HibernateException {
+        return getByKey("name", name);
     }
 
-    public UsersDataSet get(String name, String password) throws HibernateException {
-        Criteria criteria = session.createCriteria(UsersDataSet.class);
-        return ((UsersDataSet) criteria
-                .add(Restrictions.eq("name", name))
-                .add(Restrictions.eq("password", password))
-                .uniqueResult());
+    public UsersDataSet getByUid(String uid) throws HibernateException {
+        return getByKey("uid", uid);
     }
 
-    public UsersDataSet insertUser(String uid, String name, String passwordHash) throws HibernateException {
-        UsersDataSet usersDataSet = new UsersDataSet(uid, name, passwordHash);
+    public void insertUser(UsersDataSet usersDataSet) throws HibernateException {
         session.save(usersDataSet);
-        return usersDataSet;
+    }
+
+    private UsersDataSet getByKey(String key, String value) {
+        Criteria criteria = session.createCriteria(UsersDataSet.class);
+        return ((UsersDataSet) criteria
+                .add(Restrictions.eq(key, value))
+                .uniqueResult());
     }
 }

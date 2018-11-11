@@ -1,13 +1,10 @@
 package Servlets;
 
 import DTO.ResponseWrapper;
-import DTO.UserDTO;
-import Helpers.AppConfig;
+import Helpers.Factories;
 import Helpers.ServletUtils;
 import Helpers.Utils;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import dbService.DBException;
 import dbService.DBService;
 import dbService.DataServices.UsersDataSet;
@@ -16,15 +13,20 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedReader;
 import java.io.IOException;
 
 public class UserServlet extends HttpServlet {
     private final DBService dbService;
     private final Utils utils;
+    private final Factories factories;
 
-    public UserServlet(DBService dbService, Utils utils) {
+    public UserServlet(
+            DBService dbService,
+            Factories factories,
+            Utils utils
+    ) {
         this.dbService = dbService;
+        this.factories = factories;
         this.utils = utils;
     }
 
@@ -42,7 +44,7 @@ public class UserServlet extends HttpServlet {
         }
 
         try {
-            UsersDataSet usersDataSet = dbService.getUser(login);
+            UsersDataSet usersDataSet = dbService.getUserByName(login);
             if (usersDataSet == null) {
                 response = new ResponseWrapper<>(null, "User not found", 404);
             } else {
@@ -66,31 +68,30 @@ public class UserServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         ResponseWrapper<Object> response;
 
-        String name = null;
+        String login = null;
         String password = null;
 
         JsonObject body = ServletUtils.parseJsonBody(req);
         try {
-            name = body.get("login").getAsString();
+            login = body.get("login").getAsString();
             password = body.get("pas").getAsString();
         } catch (Exception e) {
             System.out.println(e);
         }
 
-        if (name == null || password == null) {
+        if (login == null || password == null) {
             response = new ResponseWrapper<>(null, "Missing data", 400);
             ServletUtils.respond(resp, response);
             return;
         }
 
         try {
-            UsersDataSet usersDataSet = dbService.getUser(name);
+            UsersDataSet usersDataSet = dbService.getUserByName(login);
             if (usersDataSet != null) {
                 response = new ResponseWrapper<>(null, "User already exists", 409);
             } else {
-                String uid = utils.getUid();
-                String passwordHash = utils.getPasswordHash(uid, password);
-                usersDataSet = dbService.createUser(uid, name, passwordHash);
+                usersDataSet = factories.createUser(login, password);
+                dbService.createUser(usersDataSet);
                 String token = utils.createGwt(usersDataSet);
                 response = new ResponseWrapper<>(token, "", 200);
             }

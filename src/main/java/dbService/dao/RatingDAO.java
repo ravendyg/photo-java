@@ -12,13 +12,15 @@ import java.util.List;
 public class RatingDAO {
     private Session session;
 
-    public RatingDAO(Session session) { this.session  = session; }
+    public RatingDAO(Session session) {
+        this.session = session;
+    }
 
     public List<RatingDataSet> get(ImageDataSet image) throws HibernateException {
-        Criteria criteria = session.createCriteria(RatingDataSet.class);
-        List list = criteria
-                .add(Restrictions.eq("image", image.getId()))
-                .list();
-        return ((List<RatingDataSet>) list);
+        Criteria criteria = session
+                .createCriteria(RatingDataSet.class)
+                .add(Restrictions.eq("image", image.getId()));
+        List<RatingDataSet> list = criteria.list();
+        return list;
     }
 }

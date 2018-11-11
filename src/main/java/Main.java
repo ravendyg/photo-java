@@ -1,6 +1,9 @@
 import Helpers.AppConfig;
+import Helpers.Factories;
+import Helpers.ServletUtils;
 import Helpers.Utils;
 import Servlets.*;
+import Websockets.WebsocketServlet;
 import dbService.DBService;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -13,12 +16,8 @@ import java.io.FileReader;
 public class Main {
     final static int PORT = 4001;
     final static String USER_ROUTE = "/java/user";
-    // refactor out
-//    final static String NEW_USER_PATH = "/user-processor/new-user";
-    // refactor out
-//    final static String SIGN_IN_PATH = "/user-processor/sign-in";
-//    final static String IMAGE_PROCESSOR = "/image-processor/*";
-//    final static String WEBSOCKET_ENDPOINT = "/socket";
+    final static String IMAGE_ROUTE = "/java/photo";
+    final static String WS_ROUTE = "/java/ws";
 
     public static void main(String[] args) throws Exception {
         DBService dbService = new DBService();
@@ -34,22 +33,20 @@ public class Main {
         }
         AppConfig appConfig = new AppConfig(sb.toString());
         Utils utils = new Utils(appConfig);
+        ServletUtils servletUtils = new ServletUtils(dbService, utils);
+        Factories factories = new Factories(utils);
 
 
         ServletContextHandler contextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
 
-        Servlet userRouter = new UserServlet(dbService, utils);
-//        Servlet signIn = new SignInServlet(dbService);
-//        Servlet userProcessorServlet = new UserProcessorServlet(dbService);
-//        Servlet imageProcessorServlet = new ImageProcessorsServlet(dbService, appConfig);
-//        Servlet webSocketServlet = new WebsocketServlet();
+        Servlet userRouter = new UserServlet(dbService, factories, utils);
+        Servlet imageProcessorServlet = new ImageServlet(dbService, servletUtils);
+        Servlet webSocketServlet = new WebsocketServlet(servletUtils);
         Servlet notFoundServlet = new NotFoundServlet();
 
         contextHandler.addServlet(new ServletHolder(userRouter), USER_ROUTE);
-//        contextHandler.addServlet(new ServletHolder(signIn), SIGN_IN_PATH);
-//        contextHandler.addServlet(new ServletHolder(userProcessorServlet), USER_PROCESSOR);
-//        contextHandler.addServlet(new ServletHolder(imageProcessorServlet), IMAGE_PROCESSOR);
-//        contextHandler.addServlet(new ServletHolder(webSocketServlet), WEBSOCKET_ENDPOINT);
+        contextHandler.addServlet(new ServletHolder(imageProcessorServlet), IMAGE_ROUTE);
+        contextHandler.addServlet(new ServletHolder(webSocketServlet), WS_ROUTE);
 
         contextHandler.addServlet((new ServletHolder(notFoundServlet)), "/");
 

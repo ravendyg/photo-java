@@ -1,7 +1,9 @@
 package Helpers;
 
 import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.sun.istack.internal.NotNull;
 import dbService.DataServices.UsersDataSet;
 import org.apache.commons.codec.binary.Hex;
@@ -15,10 +17,12 @@ public class Utils {
 
     private final Algorithm algorithm;
     private final Hex hex;
+    private final JWTVerifier verifier;
 
     public Utils(AppConfig appConfig) {
         this.algorithm = Algorithm.HMAC256(appConfig.getSecret());
         this.hex = new Hex(StandardCharsets.UTF_8);
+        this.verifier = JWT.require(this.algorithm).build();
     }
 
     public long getRandom() {
@@ -54,11 +58,21 @@ public class Utils {
         return passwordHash;
     }
 
+    // Should it be in a separate class?
     public String createGwt(UsersDataSet usersDataSet) {
         String token = JWT.create()
                 .withClaim("name", usersDataSet.getName())
                 .withClaim("uid", usersDataSet.getUid())
                 .sign(this.algorithm);
         return token;
+    }
+
+    public String getUidFromGwt(String token) {
+        try {
+            DecodedJWT jwt = verifier.verify(token);
+            return JWT.decode(token).getClaims().get("uid").asString();
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

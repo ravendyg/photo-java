@@ -9,11 +9,11 @@ import java.util.Date;
 import java.util.List;
 
 public class ImageDTO implements Serializable {
-    private long id;
+    private String iid;
     private String extension;
     private String description;
     private String title;
-    private String uploadedBy;
+    private UserDTO uploadedBy;
     private Date uploaded;
     private Date changed;
     private int commentCount;
@@ -28,11 +28,11 @@ public class ImageDTO implements Serializable {
             List<RatingDataSet> ratings,
             int userRating
     ) {
-        this.id = imageDataSet.getId();
+        this.iid = imageDataSet.getIid();
         this.extension = imageDataSet.getExt();
         description = imageDataSet.getDescription();
         title = imageDataSet.getTitle();
-        this.uploadedBy = imageDataSet.getUploadedBy().getName();
+        this.uploadedBy = new UserDTO(imageDataSet.getUploadedBy());
         uploaded = imageDataSet.getUploaded();
         changed = imageDataSet.getChanged();
         this.commentCount = comments.size();

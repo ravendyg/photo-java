@@ -10,13 +10,15 @@ import java.util.List;
 public class ImageDAO {
     private Session session;
 
-    public ImageDAO(Session session) { this.session = session; }
+    public ImageDAO(Session session) {
+        this.session = session;
+    }
 
     public List<ImageDataSet> get() throws HibernateException {
 
         Criteria criteria = session.createCriteria(ImageDataSet.class);
-        List list = criteria.list();
-        return ((List<ImageDataSet>) list);
+        List<ImageDataSet> list = criteria.list();
+        return list;
     }
 
     public long add(ImageDataSet image) throws HibernateException {

@@ -2,7 +2,6 @@ package dbService;
 
 import DTO.ImageDTO;
 import Data.PhotoRequest;
-import Helpers.Utils;
 import dbService.DataServices.*;
 import dbService.dao.*;
 import org.hibernate.HibernateException;
@@ -43,11 +42,11 @@ public class DBService {
         }
     }
 
-    public UsersDataSet getUser(long id) throws DBException {
+    public UsersDataSet getUserid(long id) throws DBException {
         try {
             Session session = sessionFactory.openSession();
             UserDAO dao = new UserDAO(session);
-            UsersDataSet dataSet = dao.get(id);
+            UsersDataSet dataSet = dao.getById(id);
             session.close();
             return dataSet;
         } catch (HibernateException e) {
@@ -55,11 +54,11 @@ public class DBService {
         }
     }
 
-    public UsersDataSet getUser(String name) throws DBException {
+    public UsersDataSet getUserByName(String name) throws DBException {
         try {
             Session session = sessionFactory.openSession();
             UserDAO dao = new UserDAO(session);
-            UsersDataSet dataSet = dao.get(name);
+            UsersDataSet dataSet = dao.getByName(name);
             session.close();
             return dataSet;
         } catch (HibernateException e) {
@@ -67,15 +66,26 @@ public class DBService {
         }
     }
 
-    public UsersDataSet createUser(String uid, String name, String passwordHash) throws DBException {
+    public UsersDataSet getUserByUid(String uid) throws DBException {
+        try {
+            Session session = sessionFactory.openSession();
+            UserDAO dao = new UserDAO(session);
+            UsersDataSet dataSet = dao.getByUid(uid);
+            session.close();
+            return dataSet;
+        } catch (HibernateException e) {
+            throw new DBException(e);
+        }
+    }
+
+    public void createUser(UsersDataSet usersDataSet) throws DBException {
         try {
             Session session = sessionFactory.openSession();
             Transaction transaction = session.beginTransaction();
             UserDAO dao = new UserDAO(session);
-            UsersDataSet usersDataSet = dao.insertUser(uid, name, passwordHash);
+            dao.insertUser(usersDataSet);
             transaction.commit();
             session.close();
-            return usersDataSet;
         } catch (HibernateException e) {
             throw new DBException(e);
         }
@@ -123,7 +133,7 @@ public class DBService {
         }
     }
 
-    public CommentsDataSet addComment(
+    public void createComment(
             UsersDataSet user,
             String cid,
             String text,
@@ -132,7 +142,8 @@ public class DBService {
         try {
             Session session = sessionFactory.openSession();
             CommentDAO commentDAO = new CommentDAO(session);
-            return commentDAO.insert(user, cid, text, image);
+            CommentsDataSet commentsDataSet = new CommentsDataSet(cid, text, user, image);
+            commentDAO.insert(commentsDataSet);
         } catch (HibernateException e) {
             throw new DBException(e);
         }
