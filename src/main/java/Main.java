@@ -3,6 +3,8 @@ import Helpers.Factories;
 import Helpers.ServletUtils;
 import Helpers.Utils;
 import Servlets.*;
+import Websockets.LongConnectionService;
+import Websockets.LongPolingServlet;
 import Websockets.WebsocketServlet;
 import dbService.DBService;
 import org.eclipse.jetty.server.Server;
@@ -17,7 +19,9 @@ public class Main {
     final static int PORT = 4001;
     final static String USER_ROUTE = "/java/user";
     final static String IMAGE_ROUTE = "/java/photo";
+    final static String VIEW_ROUTE = "/java/view";
     final static String WS_ROUTE = "/java/ws";
+    final static String LP_ROUTE = "/java/lp";
 
     public static void main(String[] args) throws Exception {
         DBService dbService = new DBService();
@@ -36,17 +40,28 @@ public class Main {
         ServletUtils servletUtils = new ServletUtils(dbService, utils);
         Factories factories = new Factories(utils);
 
+        LongConnectionService longConnectionService = new LongConnectionService();
 
         ServletContextHandler contextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
 
         Servlet userRouter = new UserServlet(dbService, factories, utils);
         Servlet imageProcessorServlet = new ImageServlet(dbService, servletUtils);
-        Servlet webSocketServlet = new WebsocketServlet(servletUtils);
+        Servlet viewServlet = new ViewServlet(dbService, servletUtils);
+        Servlet webSocketServlet = new WebsocketServlet(
+                longConnectionService,
+                servletUtils
+        );
+        Servlet longPolingServlet = new LongPolingServlet(
+                longConnectionService,
+                servletUtils
+        );
         Servlet notFoundServlet = new NotFoundServlet();
 
         contextHandler.addServlet(new ServletHolder(userRouter), USER_ROUTE);
         contextHandler.addServlet(new ServletHolder(imageProcessorServlet), IMAGE_ROUTE);
+        contextHandler.addServlet(new ServletHolder(viewServlet), VIEW_ROUTE);
         contextHandler.addServlet(new ServletHolder(webSocketServlet), WS_ROUTE);
+        contextHandler.addServlet(new ServletHolder(longPolingServlet), LP_ROUTE);
 
         contextHandler.addServlet((new ServletHolder(notFoundServlet)), "/");
 

@@ -13,6 +13,7 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.internal.SessionFactoryImpl;
 import org.hibernate.service.ServiceRegistry;
 
+import java.awt.*;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -144,6 +145,7 @@ public class DBService {
             CommentDAO commentDAO = new CommentDAO(session);
             CommentsDataSet commentsDataSet = new CommentsDataSet(cid, text, user, image);
             commentDAO.insert(commentsDataSet);
+            session.close();
         } catch (HibernateException e) {
             throw new DBException(e);
         }
@@ -164,11 +166,34 @@ public class DBService {
         }
     }
 
+    public ViewDataSet addView(UsersDataSet user, String iid) throws DBException {
+        try {
+            Session session = sessionFactory.openSession();
+            Transaction transaction = session.beginTransaction();
+            ViewDAO viewDAO = new ViewDAO(session);
+            ImageDAO imageDAO = new ImageDAO(session);
+            ImageDataSet image = imageDAO.get(iid);
+            ViewDataSet view = new ViewDataSet(user, image);
+            viewDAO.add(view);
+            transaction.commit();
+            session.close();
+            return view;
+        } catch (HibernateException e) {
+            int code = ((SQLException) e.getCause()).getErrorCode();
+            if (code == 1062) {
+                return null;
+            } else {
+                throw new DBException(e);
+            }
+        }
+    }
+
     private Configuration getMysqlConfiguration() {
         Configuration configuration = new Configuration();
         configuration.addAnnotatedClass(UsersDataSet.class);
         configuration.addAnnotatedClass(ImageDataSet.class);
         configuration.addAnnotatedClass(CommentsDataSet.class);
+        configuration.addAnnotatedClass(ViewDataSet.class);
 
         configuration.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
         configuration.setProperty("hibernate.connection.driver_class", "com.mysql.jdbc.Driver");
