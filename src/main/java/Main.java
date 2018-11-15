@@ -3,6 +3,7 @@ import Helpers.Factories;
 import Helpers.ServletUtils;
 import Helpers.Utils;
 import Servlets.*;
+import Websockets.DataBus;
 import Websockets.LongConnectionService;
 import Websockets.LongPolingServlet;
 import Websockets.WebsocketServlet;
@@ -41,12 +42,13 @@ public class Main {
         Factories factories = new Factories(utils);
 
         LongConnectionService longConnectionService = new LongConnectionService();
+        DataBus dataBus = new DataBus(longConnectionService);
 
         ServletContextHandler contextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
 
         Servlet userRouter = new UserServlet(dbService, factories, utils);
         Servlet imageProcessorServlet = new ImageServlet(dbService, servletUtils);
-        Servlet viewServlet = new ViewServlet(dbService, servletUtils);
+        Servlet viewServlet = new ViewServlet(dbService, servletUtils, dataBus);
         Servlet webSocketServlet = new WebsocketServlet(
                 longConnectionService,
                 servletUtils

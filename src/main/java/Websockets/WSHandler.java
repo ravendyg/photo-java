@@ -4,31 +4,28 @@ import Helpers.ServletUtils;
 import dbService.DataServices.UsersDataSet;
 import org.eclipse.jetty.websocket.api.RemoteEndpoint;
 import org.eclipse.jetty.websocket.api.Session;
-import org.eclipse.jetty.websocket.api.WriteCallback;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import org.eclipse.jetty.websocket.servlet.ServletUpgradeRequest;
 import org.eclipse.jetty.websocket.servlet.ServletUpgradeResponse;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.util.List;
 
 @WebSocket
-public class WSHandler {
+public class WSHandler implements ILongConnectionHandler {
     static final String tokenKey = "Sec-WebSocket-Protocol";
 
-    private WSService wsService;
+    private LongConnectionService longConnectionService;
     private Session session;
     private UsersDataSet usersDataSet;
 
     public WSHandler(
             ServletUpgradeRequest req,
             ServletUpgradeResponse resp,
-            WSService wsService,
+            LongConnectionService longConnectionService,
             ServletUtils servletUtils
     ) {
-        this.wsService = wsService;
-        String token = null;// = req.getHeader(WSHandler.tokenKey);
+        this.longConnectionService = longConnectionService;
+        String token = null;
         List<String> protocols = req.getSubProtocols();
         if (protocols != null && protocols.size() > 0) {
             // auth token should always be the last one
@@ -50,18 +47,19 @@ public class WSHandler {
 
     @OnWebSocketConnect
     public void onOpen(Session session) {
-        wsService.add(this);
+        longConnectionService.add(this);
         this.session = session;
+        this.ping();
     }
 
     @OnWebSocketMessage
     public void onMessage(String data) {
-        wsService.sendMessage(data);
+        longConnectionService.sendMessage(data);
     }
 
     @OnWebSocketClose
     public void onClose(int statusCode, String reason) {
-        wsService.remove(this);
+        longConnectionService.remove(this);
     }
 
     @OnWebSocketError
@@ -69,7 +67,7 @@ public class WSHandler {
         if (e != null) {
             e.printStackTrace();
         }
-        wsService.remove(this);
+        longConnectionService.remove(this);
     }
 
     public void sendString(String data) {
@@ -80,5 +78,20 @@ public class WSHandler {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void ping() {
+        try {
+            RemoteEndpoint remote = session.getRemote();
+            remote.sendPing(null);
+            remote.flush();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public String getType() {
+        return "websocket";
     }
 }

@@ -32,13 +32,13 @@ public class UserServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        ResponseWrapper<Object> response;
+        ResponseWrapper response;
 
         String login = req.getHeader("login");
         String password = req.getHeader("pas");
 
         if (login == null || password == null) {
-            response = new ResponseWrapper<>(null, "Missing data", 400);
+            response = new ResponseWrapper(null, "Missing data", 400);
             ServletUtils.respond(resp, response);
             return;
         }
@@ -46,19 +46,19 @@ public class UserServlet extends HttpServlet {
         try {
             UsersDataSet usersDataSet = dbService.getUserByName(login);
             if (usersDataSet == null) {
-                response = new ResponseWrapper<>(null, "User not found", 404);
+                response = new ResponseWrapper(null, "User not found", 404);
             } else {
                 String passwordHash = utils.getPasswordHash(usersDataSet.getUid(), password);
                 if (!usersDataSet.matchPassword(passwordHash)) {
-                    response = new ResponseWrapper<>(null, "Incorrect password", 401);
+                    response = new ResponseWrapper(null, "Incorrect password", 401);
                 } else {
                     String token = utils.createGwt(usersDataSet);
-                    response = new ResponseWrapper<>(token, "", 200);
+                    response = new ResponseWrapper(token, "", 200);
                 }
             }
         } catch (DBException e) {
             e.printStackTrace();
-            response = new ResponseWrapper<>(null, "Server error", 500);
+            response = new ResponseWrapper(null, "Server error", 500);
         }
 
         ServletUtils.respond(resp, response);
@@ -66,7 +66,7 @@ public class UserServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        ResponseWrapper<Object> response;
+        ResponseWrapper response;
 
         String login = null;
         String password = null;
@@ -80,7 +80,7 @@ public class UserServlet extends HttpServlet {
         }
 
         if (login == null || password == null) {
-            response = new ResponseWrapper<>(null, "Missing data", 400);
+            response = new ResponseWrapper(null, "Missing data", 400);
             ServletUtils.respond(resp, response);
             return;
         }
@@ -88,16 +88,16 @@ public class UserServlet extends HttpServlet {
         try {
             UsersDataSet usersDataSet = dbService.getUserByName(login);
             if (usersDataSet != null) {
-                response = new ResponseWrapper<>(null, "User already exists", 409);
+                response = new ResponseWrapper(null, "User already exists", 409);
             } else {
                 usersDataSet = factories.createUser(login, password);
                 dbService.createUser(usersDataSet);
                 String token = utils.createGwt(usersDataSet);
-                response = new ResponseWrapper<>(token, "", 200);
+                response = new ResponseWrapper(token, "", 200);
             }
         } catch (DBException e) {
             e.printStackTrace();
-            response = new ResponseWrapper<>(null, "Server error", 500);
+            response = new ResponseWrapper(null, "Server error", 500);
         }
 
         ServletUtils.respond(resp, response);

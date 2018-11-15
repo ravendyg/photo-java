@@ -2,13 +2,13 @@ package DTO;
 
 import java.io.Serializable;
 
-public class ResponseWrapper<T> implements Serializable {
-    T payload;
+public class ResponseWrapper implements Serializable {
+    Object payload;
     String error;
     int status;
 
     public ResponseWrapper(
-            T payload,
+            Object payload,
             String error,
             int status
     ) {

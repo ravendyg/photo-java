@@ -25,20 +25,20 @@ public class ImageServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        ResponseWrapper<Object> response;
+        ResponseWrapper response;
         UsersDataSet usersDataSet = servletUtils.getUser(req);
 
         if (usersDataSet != null) {
             try {
                 List<ImageDTO> images;
                 images = dbService.getPhotos(usersDataSet);
-                response = new ResponseWrapper<>(images, "", 200);
+                response = new ResponseWrapper(images, "", 200);
             } catch (DBException e) {
                 e.printStackTrace();
-                response = new ResponseWrapper<>(null, "Server error", 500);
+                response = new ResponseWrapper(null, "Server error", 500);
             }
         } else {
-            response = new ResponseWrapper<>(null, "Not authenticated", 401);
+            response = new ResponseWrapper(null, "Not authenticated", 401);
         }
 
         servletUtils.respond(resp, response);
