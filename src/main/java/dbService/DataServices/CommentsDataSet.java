@@ -29,6 +29,10 @@ public class CommentsDataSet implements Serializable {
     @Column(name = "user")
     private Long user;
 
+    @SuppressWarnings("UnusedDeclaration")
+    public CommentsDataSet() {
+    }
+
     public CommentsDataSet(
             String cid,
             String text,
