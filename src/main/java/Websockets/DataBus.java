@@ -1,5 +1,6 @@
 package Websockets;
 
+import DTO.RatingDTO;
 import com.google.gson.GsonBuilder;
 
 public class DataBus {
@@ -11,6 +12,11 @@ public class DataBus {
 
     public void broadcastAddView(String iid) {
         String message = prepareMessage(iid, EWSActions.ADD_VIEW);
+        this.longConnectionService.sendMessage(message);
+    }
+
+    public void broadcastRating(RatingDTO ratingDTO) {
+        String message = prepareMessage(ratingDTO, EWSActions.RATING_UPDATE);
         this.longConnectionService.sendMessage(message);
     }
 

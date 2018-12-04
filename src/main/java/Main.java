@@ -19,6 +19,7 @@ import java.io.FileReader;
 public class Main {
     final static int PORT = 4001;
     final static String USER_ROUTE = "/java/user";
+    final static String RATING_ROUTE = "/java/rating";
     final static String IMAGE_ROUTE = "/java/photo";
     final static String VIEW_ROUTE = "/java/view";
     final static String WS_ROUTE = "/java/ws";
@@ -49,6 +50,7 @@ public class Main {
         Servlet userRouter = new UserServlet(dbService, factories, utils);
         Servlet imageProcessorServlet = new ImageServlet(dbService, servletUtils);
         Servlet viewServlet = new ViewServlet(dbService, servletUtils, dataBus);
+        Servlet ratingServlet = new RatingServlet(dbService, servletUtils, dataBus);
         Servlet webSocketServlet = new WebsocketServlet(
                 longConnectionService,
                 servletUtils
@@ -60,6 +62,7 @@ public class Main {
         Servlet notFoundServlet = new NotFoundServlet();
 
         contextHandler.addServlet(new ServletHolder(userRouter), USER_ROUTE);
+        contextHandler.addServlet(new ServletHolder(ratingServlet), RATING_ROUTE);
         contextHandler.addServlet(new ServletHolder(imageProcessorServlet), IMAGE_ROUTE);
         contextHandler.addServlet(new ServletHolder(viewServlet), VIEW_ROUTE);
         contextHandler.addServlet(new ServletHolder(webSocketServlet), WS_ROUTE);

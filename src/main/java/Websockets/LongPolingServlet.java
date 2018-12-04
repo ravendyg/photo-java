@@ -2,7 +2,6 @@ package Websockets;
 
 import DTO.ResponseWrapper;
 import Helpers.ServletUtils;
-import dbService.DBService;
 import dbService.DataServices.UsersDataSet;
 
 import javax.servlet.ServletException;
@@ -25,17 +24,19 @@ public class LongPolingServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-//        UsersDataSet usersDataSet = servletUtils.getUser(req);
-//        if (usersDataSet != null) {
-//            new LPHandler(
-//                    this.servletUtils,
-//                    this.longConnectionService,
-//                    resp
-//            );
-//        } else {
-//            ResponseWrapper response = new ResponseWrapper(null, "Not authenticated", 401);
-//            servletUtils.respond(resp, response);
-//        }
+        UsersDataSet user = servletUtils.getUser(req);
+        if (user != null) {
+            new LPHandler(
+                    user,
+                    this.servletUtils,
+                    this.longConnectionService,
+                    req,
+                    resp
+            );
+        } else {
+            ResponseWrapper response = new ResponseWrapper(null, "Not authenticated", 401);
+            servletUtils.respond(resp, response);
+        }
     }
 
     @Override
