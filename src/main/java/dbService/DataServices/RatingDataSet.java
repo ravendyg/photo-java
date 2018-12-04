@@ -26,4 +26,14 @@ public class RatingDataSet implements Serializable {
     }
 
     public RatingDataSet() {}
+
+    public RatingDataSet(
+            UsersDataSet user,
+            ImageDataSet image,
+            int rating
+    ) {
+        this.user = user.getId();
+        this.image = image.getId();
+        this.value = rating;
+    }
 }

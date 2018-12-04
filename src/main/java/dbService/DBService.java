@@ -162,6 +162,17 @@ public class DBService {
         }
     }
 
+    public boolean deletePhoto(String iid, UsersDataSet user) throws  DBException {
+        try {
+            Session session = sessionFactory.openSession();
+            Transaction transaction = session.beginTransaction();
+            ImageDAO imageDAO = new ImageDAO(session);
+            return imageDAO.delete(iid, user);
+        } catch (HibernateException e) {
+            throw new DBException(e);
+        }
+    }
+
     public ViewDataSet addView(UsersDataSet user, String iid) throws DBException {
         try {
             Session session = sessionFactory.openSession();
@@ -189,6 +200,7 @@ public class DBService {
 
         try {
             Session session = sessionFactory.openSession();
+            Transaction transaction = session.beginTransaction();
             ImageDAO imageDAO = new ImageDAO(session);
             RatingDAO ratingDAO = new RatingDAO(session);
             ImageDataSet image = imageDAO.get(iid);
@@ -199,6 +211,7 @@ public class DBService {
                     image,
                     ratings
             );
+            transaction.commit();
             session.close();
         } catch (HibernateException e) {
             throw new DBException(e);

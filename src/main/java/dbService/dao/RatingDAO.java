@@ -29,6 +29,8 @@ public class RatingDAO {
     }
 
     public void upsertRating(UsersDataSet user, ImageDataSet image, int rating) {
+        RatingDataSet ratingDataSet = new RatingDataSet(user, image, rating);
+        session.saveOrUpdate(ratingDataSet);
     }
 
     public HashMap<String, Number> getAverageRating(UsersDataSet user, ImageDataSet image) {
