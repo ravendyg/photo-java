@@ -19,11 +19,7 @@ public class RatingDataSet implements Serializable {
 
     @Id
     @Column(name = "image")
-    private Long image;
-
-    public Long getUser() {
-        return user;
-    }
+    private long image;
 
     public int getValue() {
         return value;

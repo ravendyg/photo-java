@@ -38,7 +38,7 @@ public class RatingServlet extends HttpServlet {
         try {
             iid = body.get("iid").getAsString();
             rating = body.get("rating").getAsInt();
-            RatingDTO ratingDTO = new RatingDTO(user, iid, rating, 3, 5);
+            RatingDTO ratingDTO = dbService.upsertRating(user, iid, rating);
             dataBus.broadcastRating(ratingDTO);
         } catch (Exception e) {
             e.printStackTrace();

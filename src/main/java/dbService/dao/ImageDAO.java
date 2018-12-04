@@ -18,6 +18,7 @@ public class ImageDAO {
     public List<ImageDataSet> get() throws HibernateException {
         Criteria criteria = session.createCriteria(ImageDataSet.class);
         List<ImageDataSet> list = criteria.list();
+        list.sort((im1, im2) -> im2.getUploaded().compareTo(im1.getUploaded()));
         return list;
     }
 

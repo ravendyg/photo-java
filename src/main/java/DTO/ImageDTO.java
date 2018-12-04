@@ -6,6 +6,7 @@ import dbService.DataServices.RatingDataSet;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 public class ImageDTO implements Serializable {
@@ -17,16 +18,15 @@ public class ImageDTO implements Serializable {
     private Date uploaded;
     private Date changed;
     private int commentCount;
-    private long averageRating;
-    private int ratingCount;
+    private double averageRating;
+    private long ratingCount;
     private int userRating;
     private long views;
 
     public ImageDTO (
             ImageDataSet imageDataSet,
             List<CommentsDataSet> comments,
-            List<RatingDataSet> ratings,
-            int userRating
+            HashMap<String, Number> ratings
     ) {
         this.iid = imageDataSet.getIid();
         this.extension = imageDataSet.getExt();
@@ -36,15 +36,9 @@ public class ImageDTO implements Serializable {
         uploaded = imageDataSet.getUploaded();
         changed = imageDataSet.getChanged();
         this.commentCount = comments.size();
-        long sum = 0;
-        for (RatingDataSet rating : ratings) {
-            sum += rating.getValue();
-        }
-        this.averageRating = ratings.size() > 0
-                ? sum / ratings.size()
-                : 0;
-        this.ratingCount = ratings.size();
-        this.userRating = userRating;
+        this.averageRating = (double) ratings.get("average");
+        this.ratingCount = (long) ratings.get("count");
+        this.userRating = (int) ratings.get("user");
         this.views = imageDataSet.getViews();
     }
 }

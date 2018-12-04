@@ -1,6 +1,7 @@
 package dbService;
 
 import DTO.ImageDTO;
+import DTO.RatingDTO;
 import Data.PhotoRequest;
 import dbService.DataServices.*;
 import dbService.dao.*;
@@ -17,6 +18,7 @@ import java.awt.*;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class DBService {
@@ -114,17 +116,11 @@ public class DBService {
             List<ImageDataSet> images = imageDAO.get();
             List<ImageDTO> imageDTOs = new ArrayList<>();
             // think about a way to optimize this
-            for (ImageDataSet imageDataSet : images) {
-                List<CommentsDataSet> commentsDataSets = commentDAO.getByImage(imageDataSet);
-                List<RatingDataSet> ratingDataSets = ratingDAO.get(imageDataSet);
-                int userRating = 0;
-                for (RatingDataSet ratingDataSet : ratingDataSets) {
-                    if (ratingDataSet.getUser() == user.getId()) {
-                        userRating = ratingDataSet.getValue();
-                        break;
-                    }
-                }
-                imageDTOs.add(new ImageDTO(imageDataSet, commentsDataSets, ratingDataSets, userRating));
+            for (ImageDataSet image : images) {
+                List<CommentsDataSet> commentsDataSets = commentDAO.getByImage(image);
+                HashMap<String, Number> ratings = ratingDAO.getAverageRating(user, image);
+                List<RatingDataSet> ratingDataSets = ratingDAO.get(image);
+                imageDTOs.add(new ImageDTO(image, commentsDataSets, ratings));
             }
             transaction.commit();
             session.close();
@@ -188,12 +184,35 @@ public class DBService {
         }
     }
 
+    public RatingDTO upsertRating(UsersDataSet user, String iid, int rating) throws DBException{
+        RatingDTO ratingDTO = null;
+
+        try {
+            Session session = sessionFactory.openSession();
+            ImageDAO imageDAO = new ImageDAO(session);
+            RatingDAO ratingDAO = new RatingDAO(session);
+            ImageDataSet image = imageDAO.get(iid);
+            ratingDAO.upsertRating(user, image, rating);
+            HashMap<String, Number> ratings = ratingDAO.getAverageRating(user, image);
+            ratingDTO = new RatingDTO(
+                    user,
+                    image,
+                    ratings
+            );
+            session.close();
+        } catch (HibernateException e) {
+            throw new DBException(e);
+        }
+        return ratingDTO;
+    }
+
     private Configuration getMysqlConfiguration() {
         Configuration configuration = new Configuration();
         configuration.addAnnotatedClass(UsersDataSet.class);
         configuration.addAnnotatedClass(ImageDataSet.class);
         configuration.addAnnotatedClass(CommentsDataSet.class);
         configuration.addAnnotatedClass(ViewDataSet.class);
+        configuration.addAnnotatedClass(RatingDataSet.class);
 
         configuration.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
         configuration.setProperty("hibernate.connection.driver_class", "com.mysql.jdbc.Driver");
