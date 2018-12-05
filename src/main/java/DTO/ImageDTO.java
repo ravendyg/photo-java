@@ -18,15 +18,14 @@ public class ImageDTO implements Serializable {
     private Date uploaded;
     private Date changed;
     private int commentCount;
-    private double averageRating;
-    private long ratingCount;
-    private int userRating;
+    private String averageRating;
+    private String userRating;
     private long views;
 
     public ImageDTO (
             ImageDataSet imageDataSet,
             List<CommentsDataSet> comments,
-            HashMap<String, Number> ratings
+            HashMap<String, String> ratings
     ) {
         this.iid = imageDataSet.getIid();
         this.extension = imageDataSet.getExt();
@@ -36,9 +35,8 @@ public class ImageDTO implements Serializable {
         uploaded = imageDataSet.getUploaded();
         changed = imageDataSet.getChanged();
         this.commentCount = comments.size();
-        this.averageRating = (double) ratings.get("average");
-        this.ratingCount = (long) ratings.get("count");
-        this.userRating = (int) ratings.get("user");
+        this.averageRating = ratings.get("average");
+        this.userRating = ratings.get("user");
         this.views = imageDataSet.getViews();
     }
 }

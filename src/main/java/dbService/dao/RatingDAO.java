@@ -1,6 +1,5 @@
 package dbService.dao;
 
-import DTO.RatingDTO;
 import dbService.DataServices.ImageDataSet;
 import dbService.DataServices.RatingDataSet;
 import dbService.DataServices.UsersDataSet;
@@ -33,35 +32,30 @@ public class RatingDAO {
         session.saveOrUpdate(ratingDataSet);
     }
 
-    public HashMap<String, Number> getAverageRating(UsersDataSet user, ImageDataSet image) {
+    public HashMap<String, String> getAverageRating(UsersDataSet user, ImageDataSet image) {
         Query query = session.createQuery(
                 (new StringBuilder())
-                        .append("SELECT COUNT(*), AVG(value) FROM RatingDataSet")
+                        .append("SELECT AVG(value) FROM RatingDataSet")
                         .append(" WHERE image = ")
                         .append(image.getId())
                         .toString()
         );
-        Object[] res = (Object[]) query.uniqueResult();
-        HashMap<String, Number> result = new HashMap<>();
-        Long count = (Long) res[0];
-        if (count == null) {
-            count = 0L;
-        }
-        result.put("count", count);
-        Double average = (Double) res[1];
+        HashMap<String, String> result = new HashMap<>();
+        Double average = (Double) query.uniqueResult();
         if (average == null) {
-            average = 0.0;
+            average = new Double(0);
         }
-        result.put("average", average);
+        String averageStr = average.toString();
+        result.put("average", averageStr);
 
         Criteria criteria = session.createCriteria(RatingDataSet.class);
         criteria.add(Restrictions.eq("user", user.getId()));
         criteria.add(Restrictions.eq("image", image.getId()));
         RatingDataSet userRating = (RatingDataSet) criteria.uniqueResult();
         if (userRating != null) {
-            result.put("user", (int) userRating.getValue());
+            result.put("user", new Integer(userRating.getValue()).toString());
         } else {
-            result.put("user", 0);
+            result.put("user", "0");
         }
 
         return result;

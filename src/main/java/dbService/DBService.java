@@ -118,7 +118,7 @@ public class DBService {
             // think about a way to optimize this
             for (ImageDataSet image : images) {
                 List<CommentsDataSet> commentsDataSets = commentDAO.getByImage(image);
-                HashMap<String, Number> ratings = ratingDAO.getAverageRating(user, image);
+                HashMap<String, String> ratings = ratingDAO.getAverageRating(user, image);
                 imageDTOs.add(new ImageDTO(image, commentsDataSets, ratings));
             }
             transaction.commit();
@@ -138,7 +138,7 @@ public class DBService {
             CommentDAO commentDAO = new CommentDAO(session);
             RatingDAO ratingDAO = new RatingDAO(session);
             List<CommentsDataSet> commentsDataSets = commentDAO.getByImage(image);
-            HashMap<String, Number> ratings = ratingDAO.getAverageRating(user, image);
+            HashMap<String, String> ratings = ratingDAO.getAverageRating(user, image);
             ImageDTO dto = new ImageDTO(image, commentsDataSets, ratings);
             return dto;
         } catch (HibernateException e) {
@@ -225,7 +225,7 @@ public class DBService {
             RatingDAO ratingDAO = new RatingDAO(session);
             ImageDataSet image = imageDAO.get(iid);
             ratingDAO.upsertRating(user, image, rating);
-            HashMap<String, Number> ratings = ratingDAO.getAverageRating(user, image);
+            HashMap<String, String> ratings = ratingDAO.getAverageRating(user, image);
             ratingDTO = new RatingDTO(
                     user,
                     image,
