@@ -1,5 +1,6 @@
 package Websockets;
 
+import DTO.ImageDTO;
 import DTO.RatingDTO;
 import com.google.gson.GsonBuilder;
 
@@ -22,6 +23,11 @@ public class DataBus {
 
     public void broadcastDeletePhoto(String iid) {
         String message = prepareMessage(iid, EWSActions.DELETE_PHOTO);
+        this.longConnectionService.sendMessage(message);
+    }
+
+    public void broadcastNewPhoto(ImageDTO imageDTO) {
+        String message = prepareMessage(imageDTO, EWSActions.NEW_PHOTO);
         this.longConnectionService.sendMessage(message);
     }
 

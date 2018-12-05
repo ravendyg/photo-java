@@ -48,7 +48,13 @@ public class Main {
         ServletContextHandler contextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
 
         Servlet userRouter = new UserServlet(dbService, factories, utils);
-        Servlet imageProcessorServlet = new ImageServlet(dbService, servletUtils, dataBus);
+        Servlet imageProcessorServlet = new ImageServlet(
+                appConfig,
+                dbService,
+                utils,
+                servletUtils,
+                dataBus
+        );
         Servlet viewServlet = new ViewServlet(dbService, servletUtils, dataBus);
         Servlet ratingServlet = new RatingServlet(dbService, servletUtils, dataBus);
         Servlet webSocketServlet = new WebsocketServlet(

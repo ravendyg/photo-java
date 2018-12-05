@@ -119,12 +119,28 @@ public class DBService {
             for (ImageDataSet image : images) {
                 List<CommentsDataSet> commentsDataSets = commentDAO.getByImage(image);
                 HashMap<String, Number> ratings = ratingDAO.getAverageRating(user, image);
-                List<RatingDataSet> ratingDataSets = ratingDAO.get(image);
                 imageDTOs.add(new ImageDTO(image, commentsDataSets, ratings));
             }
             transaction.commit();
             session.close();
             return imageDTOs;
+        } catch (HibernateException e) {
+            throw new DBException(e);
+        }
+    }
+
+    private ImageDTO getPhotoMetadata(
+            Session session,
+            UsersDataSet user,
+            ImageDataSet image
+    ) throws DBException {
+        try {
+            CommentDAO commentDAO = new CommentDAO(session);
+            RatingDAO ratingDAO = new RatingDAO(session);
+            List<CommentsDataSet> commentsDataSets = commentDAO.getByImage(image);
+            HashMap<String, Number> ratings = ratingDAO.getAverageRating(user, image);
+            ImageDTO dto = new ImageDTO(image, commentsDataSets, ratings);
+            return dto;
         } catch (HibernateException e) {
             throw new DBException(e);
         }
@@ -147,16 +163,17 @@ public class DBService {
         }
     }
 
-    public long addPhoto(PhotoRequest photoRequest) throws DBException {
+    public ImageDTO addPhoto(UsersDataSet user, PhotoRequest photoRequest) throws DBException {
         try {
             Session session = sessionFactory.openSession();
             Transaction transaction = session.beginTransaction();
             ImageDAO dao = new ImageDAO(session);
             ImageDataSet image = new ImageDataSet(photoRequest);
-            long id = dao.add(image);
+            dao.add(image);
+            ImageDTO result = getPhotoMetadata(session, user, image);
             transaction.commit();
             session.close();
-            return id;
+            return result;
         } catch (HibernateException e) {
             throw new DBException(e);
         }
