@@ -27,7 +27,7 @@ public class ImageDataSet implements Serializable {
     @Column(name = "title")
     private String title;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "uploaded_by")
     private UsersDataSet uploadedBy;
 

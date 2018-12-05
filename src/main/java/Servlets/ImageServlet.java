@@ -3,6 +3,8 @@ package Servlets;
 import DTO.ImageDTO;
 import DTO.ResponseWrapper;
 import Helpers.ServletUtils;
+import Websockets.DataBus;
+import com.google.gson.JsonObject;
 import dbService.DBException;
 import dbService.DBService;
 import dbService.DataServices.UsersDataSet;
@@ -17,10 +19,16 @@ import java.util.List;
 public class ImageServlet extends HttpServlet {
     private final DBService dbService;
     private final ServletUtils servletUtils;
+    private final DataBus dataBus;
 
-    public ImageServlet(DBService dbService, ServletUtils servletUtils) {
+    public ImageServlet(
+            DBService dbService,
+            ServletUtils servletUtils,
+            DataBus dataBus
+    ) {
         this.dbService = dbService;
         this.servletUtils = servletUtils;
+        this.dataBus = dataBus;
     }
 
     @Override
@@ -102,4 +110,36 @@ public class ImageServlet extends HttpServlet {
 //            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
 //        }
 //    }
+
+
+    @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        ResponseWrapper response;
+        UsersDataSet user = servletUtils.getUser(req);
+
+        if (user != null) {
+            String iid;
+            try {
+                iid = req.getHeader("iid");
+                if (iid != null) {
+                    boolean deleted = dbService.deletePhoto(iid, user);
+                    if (deleted) {
+                        response = new ResponseWrapper(null, "", 200);
+                        dataBus.broadcastDeletePhoto(iid);
+                    } else {
+                        response = new ResponseWrapper(null, "Could not delete", 400);
+                    }
+                } else {
+                    response = new ResponseWrapper(null, "Missing iid", 400);
+                }
+            } catch (DBException e) {
+                e.printStackTrace();
+                response = new ResponseWrapper(null, "Server error", 500);
+            }
+        } else {
+            response = new ResponseWrapper(null, "Not authenticated", 401);
+        }
+
+        servletUtils.respond(resp, response);
+    }
 }

@@ -8,7 +8,7 @@ enum EWSActions {
     PATCH_PHOTO(3),
     DELETE_PHOTO(4),
     NEW_COMMENT(5),
-    DELET_COMMENT(6),
+    DELETE_COMMENT(6),
     ADD_VIEW(7);
 
     private int numVal;

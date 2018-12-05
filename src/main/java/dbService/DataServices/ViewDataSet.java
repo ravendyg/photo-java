@@ -8,7 +8,7 @@ import java.util.Date;
 @Table(name = "views")
 public class ViewDataSet implements Serializable {
     @Id
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "image")
     private ImageDataSet image;
 
@@ -16,7 +16,7 @@ public class ViewDataSet implements Serializable {
     private Date date;
 
     @Id
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "user")
     private UsersDataSet user;
 

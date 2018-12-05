@@ -167,7 +167,10 @@ public class DBService {
             Session session = sessionFactory.openSession();
             Transaction transaction = session.beginTransaction();
             ImageDAO imageDAO = new ImageDAO(session);
-            return imageDAO.delete(iid, user);
+            boolean deleted = imageDAO.delete(iid, user);
+            transaction.commit();
+            session.close();
+            return deleted;
         } catch (HibernateException e) {
             throw new DBException(e);
         }

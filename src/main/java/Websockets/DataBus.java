@@ -20,6 +20,11 @@ public class DataBus {
         this.longConnectionService.sendMessage(message);
     }
 
+    public void broadcastDeletePhoto(String iid) {
+        String message = prepareMessage(iid, EWSActions.DELETE_PHOTO);
+        this.longConnectionService.sendMessage(message);
+    }
+
     private String prepareMessage(Object payload, EWSActions action) {
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.serializeNulls();
