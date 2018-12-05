@@ -15,6 +15,7 @@ public class LongConnectionService {
         for (ILongConnectionHandler connectionHandler : webSockets) {
             try {
                 connectionHandler.sendString(data);
+                remove(connectionHandler);
             } catch (Exception e) {
                 e.printStackTrace();
             }

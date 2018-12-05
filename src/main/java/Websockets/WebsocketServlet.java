@@ -4,7 +4,6 @@ import Helpers.ServletUtils;
 import org.eclipse.jetty.websocket.servlet.WebSocketServlet;
 import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
 
-
 public class WebsocketServlet extends WebSocketServlet {
     private static final int LOGOUT_TIME = 10000 * 60 * 10;
     private final LongConnectionService longConnectionService;
