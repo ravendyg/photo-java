@@ -14,7 +14,9 @@ import java.util.List;
 public class WSHandler implements ILongConnectionHandler {
     static final String tokenKey = "Sec-WebSocket-Protocol";
 
-    private LongConnectionService longConnectionService;
+    private final LongConnectionService longConnectionService;
+    private final IAsyncProcessor asyncProcessor;
+
     private Session session;
     private UsersDataSet usersDataSet;
 
@@ -22,9 +24,12 @@ public class WSHandler implements ILongConnectionHandler {
             ServletUpgradeRequest req,
             ServletUpgradeResponse resp,
             LongConnectionService longConnectionService,
-            ServletUtils servletUtils
+            ServletUtils servletUtils,
+            IAsyncProcessor asyncProcessor
     ) {
         this.longConnectionService = longConnectionService;
+        this.asyncProcessor = asyncProcessor;
+
         String token = null;
         List<String> protocols = req.getSubProtocols();
         if (protocols != null && protocols.size() > 0) {

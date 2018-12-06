@@ -1,7 +1,8 @@
-package Websockets;
+package AsyncHandlers;
 
 import DTO.ImageDTO;
 import DTO.RatingDTO;
+import Websockets.LongConnectionService;
 import com.google.gson.GsonBuilder;
 
 public class DataBus {
@@ -34,7 +35,7 @@ public class DataBus {
     private String prepareMessage(Object payload, EWSActions action) {
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.serializeNulls();
-        String json = gsonBuilder.create().toJson(new LongConnectionMessage(
+        String json = gsonBuilder.create().toJson(new AsyncMessage(
                 payload, action
         ));
         return json;

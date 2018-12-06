@@ -2,7 +2,7 @@ package Servlets;
 
 import DTO.RatingDTO;
 import Helpers.ServletUtils;
-import Websockets.DataBus;
+import AsyncHandlers.DataBus;
 import com.google.gson.JsonObject;
 import dbService.DBService;
 import dbService.DataServices.UsersDataSet;

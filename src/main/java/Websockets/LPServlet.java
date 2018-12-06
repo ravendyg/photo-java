@@ -2,6 +2,7 @@ package Websockets;
 
 import DTO.ResponseWrapper;
 import Helpers.ServletUtils;
+import com.google.gson.JsonObject;
 import dbService.DataServices.UsersDataSet;
 
 import javax.servlet.ServletException;
@@ -10,16 +11,19 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-public class LongPolingServlet extends HttpServlet {
+public class LPServlet extends HttpServlet {
     private final LongConnectionService longConnectionService;
     private final ServletUtils servletUtils;
+    private final IAsyncProcessor processor;
 
-    public LongPolingServlet(
+    public LPServlet(
             LongConnectionService longConnectionService,
-            ServletUtils servletUtils
+            ServletUtils servletUtils,
+            IAsyncProcessor processor
     ) {
         this.longConnectionService = longConnectionService;
         this.servletUtils = servletUtils;
+        this.processor = processor;
     }
 
     @Override
@@ -41,7 +45,13 @@ public class LongPolingServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        this.longConnectionService.sendMessage("test");
+        UsersDataSet user = servletUtils.getUser(req);
+        if (user != null) {
+            // TODO: add ArrayBuffer handling
+            JsonObject message = ServletUtils.parseJsonBody(req);
+            processor.process(user, message);
+        }
+        // do not process 401 explicitly
         resp.setStatus(HttpServletResponse.SC_OK);
     }
 }

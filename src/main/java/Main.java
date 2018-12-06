@@ -1,12 +1,11 @@
+import AsyncHandlers.DataBus;
 import Helpers.AppConfig;
 import Helpers.Factories;
 import Helpers.ServletUtils;
 import Helpers.Utils;
+import AsyncHandlers.AsyncProcessor;
 import Servlets.*;
-import Websockets.DataBus;
-import Websockets.LongConnectionService;
-import Websockets.LongPolingServlet;
-import Websockets.WebsocketServlet;
+import Websockets.*;
 import dbService.DBService;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -44,6 +43,7 @@ public class Main {
 
         LongConnectionService longConnectionService = new LongConnectionService();
         DataBus dataBus = new DataBus(longConnectionService);
+        IAsyncProcessor asyncProcessor = new AsyncProcessor(dbService, dataBus);
 
         ServletContextHandler contextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
 
@@ -59,11 +59,13 @@ public class Main {
         Servlet ratingServlet = new RatingServlet(dbService, servletUtils, dataBus);
         Servlet webSocketServlet = new WebsocketServlet(
                 longConnectionService,
-                servletUtils
+                servletUtils,
+                asyncProcessor
         );
-        Servlet longPolingServlet = new LongPolingServlet(
+        Servlet longPolingServlet = new LPServlet(
                 longConnectionService,
-                servletUtils
+                servletUtils,
+                asyncProcessor
         );
         Servlet notFoundServlet = new NotFoundServlet();
 
