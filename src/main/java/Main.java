@@ -1,6 +1,5 @@
 import AsyncHandlers.DataBus;
 import Helpers.AppConfig;
-import Helpers.Factories;
 import Helpers.ServletUtils;
 import Helpers.Utils;
 import AsyncHandlers.AsyncProcessor;
@@ -26,9 +25,6 @@ public class Main {
     final static String LP_ROUTE = "/java/lp";
 
     public static void main(String[] args) throws Exception {
-        DBService dbService = new DBService();
-        dbService.printConnectInfo();
-
         // don't catch - it's critical
         FileReader fileReader = new FileReader("config.json" );
         BufferedReader bufferedReader = new BufferedReader(fileReader);
@@ -39,8 +35,9 @@ public class Main {
         }
         AppConfig appConfig = new AppConfig(sb.toString());
         Utils utils = new Utils(appConfig);
+        DBService dbService = new DBService(utils);
+        dbService.printConnectInfo();
         ServletUtils servletUtils = new ServletUtils(dbService, utils);
-        Factories factories = new Factories(utils);
 
         LongConnectionService longConnectionService = new LongConnectionService();
         DataBus dataBus = new DataBus(longConnectionService);
@@ -48,7 +45,7 @@ public class Main {
 
         ServletContextHandler contextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
 
-        Servlet userRouter = new UserServlet(dbService, factories, utils);
+        Servlet userRouter = new UserServlet(dbService, utils);
         Servlet imageProcessorServlet = new ImageServlet(
                 appConfig,
                 dbService,

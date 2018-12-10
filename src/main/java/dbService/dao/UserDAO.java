@@ -25,8 +25,13 @@ public class UserDAO {
         return getByKey("uid", uid);
     }
 
-    public void insertUser(UsersDataSet usersDataSet) throws HibernateException {
-        session.save(usersDataSet);
+    public void insertUser(
+            String uid,
+            String login,
+            String password
+    ) throws HibernateException {
+        UsersDataSet user = new UsersDataSet(uid, login, password);
+        session.save(user);
     }
 
     private UsersDataSet getByKey(String key, String value) {

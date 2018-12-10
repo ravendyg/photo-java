@@ -23,8 +23,9 @@ public class CommentsDataSet implements Serializable {
     @Column(name = "text")
     private String text;
 
-    @Column(name = "image")
-    private Long image;
+    @ManyToOne
+    @JoinColumn(name = "image")
+    private ImageDataSet image;
 
     @ManyToOne
     @JoinColumn(name = "user")
@@ -38,7 +39,7 @@ public class CommentsDataSet implements Serializable {
             String cid,
             String text,
             UsersDataSet user,
-            Long image
+            ImageDataSet image
     ) {
         this.cid = cid;
         this.date = new Date();
@@ -63,7 +64,7 @@ public class CommentsDataSet implements Serializable {
         return text;
     }
 
-    public Long getImage() {
+    public ImageDataSet getImage() {
         return image;
     }
 

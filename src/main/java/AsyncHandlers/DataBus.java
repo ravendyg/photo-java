@@ -1,5 +1,6 @@
 package AsyncHandlers;
 
+import DTO.CommentDTO;
 import DTO.ImageDTO;
 import DTO.RatingDTO;
 import Websockets.LongConnectionService;
@@ -29,6 +30,11 @@ public class DataBus {
 
     public void broadcastNewPhoto(ImageDTO imageDTO) {
         String message = prepareMessage(imageDTO, EWSActions.NEW_PHOTO);
+        this.longConnectionService.sendMessage(message);
+    }
+
+    public void broacastNewComment(CommentDTO commentDTO) {
+        String message = prepareMessage(commentDTO, EWSActions.NEW_COMMENT);
         this.longConnectionService.sendMessage(message);
     }
 

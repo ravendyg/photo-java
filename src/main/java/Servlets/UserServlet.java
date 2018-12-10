@@ -1,7 +1,6 @@
 package Servlets;
 
 import DTO.ResponseWrapper;
-import Helpers.Factories;
 import Helpers.ServletUtils;
 import Helpers.Utils;
 import com.google.gson.JsonObject;
@@ -18,15 +17,12 @@ import java.io.IOException;
 public class UserServlet extends HttpServlet {
     private final DBService dbService;
     private final Utils utils;
-    private final Factories factories;
 
     public UserServlet(
             DBService dbService,
-            Factories factories,
             Utils utils
     ) {
         this.dbService = dbService;
-        this.factories = factories;
         this.utils = utils;
     }
 
@@ -90,8 +86,7 @@ public class UserServlet extends HttpServlet {
             if (usersDataSet != null) {
                 response = new ResponseWrapper(null, "User already exists", 409);
             } else {
-                usersDataSet = factories.createUser(login, password);
-                dbService.createUser(usersDataSet);
+                dbService.createUser(login, password);
                 String token = utils.createGwt(usersDataSet);
                 response = new ResponseWrapper(token, "", 200);
             }

@@ -1,8 +1,10 @@
 package dbService;
 
+import DTO.CommentDTO;
 import DTO.ImageDTO;
 import DTO.RatingDTO;
 import Data.PhotoRequest;
+import Helpers.Utils;
 import dbService.DataServices.*;
 import dbService.dao.*;
 import org.hibernate.HibernateException;
@@ -26,8 +28,10 @@ public class DBService {
     private static final String hibernate_hbm2ddl_auto = "validate";
 
     private final SessionFactory sessionFactory;
+    private final Utils utils;
 
-    public DBService() {
+    public DBService(Utils utils) {
+        this.utils = utils;
         Configuration configuration = getMysqlConfiguration();
         sessionFactory = createSessionFactory(configuration);
     }
@@ -81,12 +85,13 @@ public class DBService {
         }
     }
 
-    public void createUser(UsersDataSet usersDataSet) throws DBException {
+    public void createUser(String login, String password) throws DBException {
         try {
             Session session = sessionFactory.openSession();
             Transaction transaction = session.beginTransaction();
             UserDAO dao = new UserDAO(session);
-            dao.insertUser(usersDataSet);
+            String uid = utils.getUid();
+            dao.insertUser(uid, login, password);
             transaction.commit();
             session.close();
         } catch (HibernateException e) {
@@ -145,18 +150,23 @@ public class DBService {
         }
     }
 
-    public void createComment(
+    public CommentsDataSet createComment(
             UsersDataSet user,
-            String cid,
-            String text,
-            Long image
+            String iid,
+            String text
     ) throws DBException {
         try {
             Session session = sessionFactory.openSession();
+            Transaction transaction = session.beginTransaction();
+            ImageDAO imageDAO = new ImageDAO(session);
             CommentDAO commentDAO = new CommentDAO(session);
-            CommentsDataSet commentsDataSet = new CommentsDataSet(cid, text, user, image);
-            commentDAO.insert(commentsDataSet);
+            String cid = utils.getUid();
+            ImageDataSet image = imageDAO.get(iid);
+            CommentsDataSet comment = new CommentsDataSet(cid, text, user, image);
+            commentDAO.insert(comment);
+            transaction.commit();
             session.close();
+            return comment;
         } catch (HibernateException e) {
             throw new DBException(e);
         }

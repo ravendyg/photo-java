@@ -18,7 +18,7 @@ public class CommentDAO {
     public List<CommentsDataSet> getByImage(ImageDataSet image) throws HibernateException {
         Criteria criteria = session.createCriteria(CommentsDataSet.class);
         List<CommentsDataSet> list = criteria
-                .add(Restrictions.eq("image", image.getId()))
+                .add(Restrictions.eq("image", image))
                 .list();
         return list;
     }
