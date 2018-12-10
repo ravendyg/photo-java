@@ -115,7 +115,6 @@ public class DBService {
             RatingDAO ratingDAO = new RatingDAO(session);
             List<ImageDataSet> images = imageDAO.get();
             List<ImageDTO> imageDTOs = new ArrayList<>();
-            // think about a way to optimize this
             for (ImageDataSet image : images) {
                 List<CommentsDataSet> commentsDataSets = commentDAO.getByImage(image);
                 HashMap<String, String> ratings = ratingDAO.getAverageRating(user, image);
@@ -158,6 +157,22 @@ public class DBService {
             CommentsDataSet commentsDataSet = new CommentsDataSet(cid, text, user, image);
             commentDAO.insert(commentsDataSet);
             session.close();
+        } catch (HibernateException e) {
+            throw new DBException(e);
+        }
+    }
+
+    public List<CommentsDataSet> getComments(String iid) throws DBException {
+        try {
+            Session session = sessionFactory.openSession();
+            Transaction transaction = session.beginTransaction();
+            ImageDAO imageDAO = new ImageDAO(session);
+            ImageDataSet image = imageDAO.get(iid);
+            CommentDAO commentDAO = new CommentDAO(session);
+            List<CommentsDataSet> comments = commentDAO.getByImage(image);
+            transaction.commit();
+            session.close();
+            return comments;
         } catch (HibernateException e) {
             throw new DBException(e);
         }

@@ -19,6 +19,7 @@ public class Main {
     final static int PORT = 4001;
     final static String USER_ROUTE = "/java/user";
     final static String RATING_ROUTE = "/java/rating";
+    final static String COMMENT_ROUTE = "/java/comment/*";
     final static String IMAGE_ROUTE = "/java/photo";
     final static String VIEW_ROUTE = "/java/view";
     final static String WS_ROUTE = "/java/ws";
@@ -57,6 +58,7 @@ public class Main {
         );
         Servlet viewServlet = new ViewServlet(dbService, servletUtils, dataBus);
         Servlet ratingServlet = new RatingServlet(dbService, servletUtils, dataBus);
+        Servlet commentServlet = new CommentServlet(dbService, servletUtils);
         Servlet webSocketServlet = new WebsocketServlet(
                 longConnectionService,
                 servletUtils,
@@ -71,6 +73,7 @@ public class Main {
 
         contextHandler.addServlet(new ServletHolder(userRouter), USER_ROUTE);
         contextHandler.addServlet(new ServletHolder(ratingServlet), RATING_ROUTE);
+        contextHandler.addServlet(new ServletHolder(commentServlet), COMMENT_ROUTE);
         contextHandler.addServlet(new ServletHolder(imageProcessorServlet), IMAGE_ROUTE);
         contextHandler.addServlet(new ServletHolder(viewServlet), VIEW_ROUTE);
         contextHandler.addServlet(new ServletHolder(webSocketServlet), WS_ROUTE);

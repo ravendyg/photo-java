@@ -26,8 +26,9 @@ public class CommentsDataSet implements Serializable {
     @Column(name = "image")
     private Long image;
 
-    @Column(name = "user")
-    private Long user;
+    @ManyToOne
+    @JoinColumn(name = "user")
+    private UsersDataSet user;
 
     @SuppressWarnings("UnusedDeclaration")
     public CommentsDataSet() {
@@ -42,7 +43,31 @@ public class CommentsDataSet implements Serializable {
         this.cid = cid;
         this.date = new Date();
         this.text = text;
-        this.user = user.getId();
+        this.user = user;
         this.image = image;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public String getCid() {
+        return cid;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public Long getImage() {
+        return image;
+    }
+
+    public UsersDataSet getUser() {
+        return user;
     }
 }
