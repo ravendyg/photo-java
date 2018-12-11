@@ -34,15 +34,14 @@ public class ImageDAO {
         return (long) session.save(image);
     }
 
-    public boolean delete(String iid, UsersDataSet user) {
+    public ImageDataSet delete(String iid, UsersDataSet user) {
         Criteria criteria = session.createCriteria(ImageDataSet.class);
         ImageDataSet image = ((ImageDataSet) criteria
                 .add(Restrictions.eq("iid", iid))
                 .uniqueResult());
-        if (image.getUploadedBy().getId() == user.getId()) {
+        if (image != null && image.getUploadedBy().getId() == user.getId()) {
             session.delete(image);
-            return true;
         }
-        return false;
+        return image;
     }
 }

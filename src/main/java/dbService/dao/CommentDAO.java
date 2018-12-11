@@ -26,4 +26,14 @@ public class CommentDAO {
     public void insert(CommentsDataSet commentsDataSet) throws HibernateException {
         session.save(commentsDataSet);
     }
+
+    public CommentsDataSet delete(String cid, UsersDataSet user) throws HibernateException {
+        Criteria criteria = session.createCriteria(CommentsDataSet.class);
+        CommentsDataSet comment = ((CommentsDataSet) criteria
+                .add(Restrictions.eq("cid", cid))
+                .add(Restrictions.eq("user", user))
+                .uniqueResult());
+        session.delete(comment);
+        return comment;
+    }
 }

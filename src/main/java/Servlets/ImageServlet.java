@@ -104,35 +104,4 @@ public class ImageServlet extends HttpServlet {
         servletUtils.respond(resp, response);
     }
 
-
-    @Override
-    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        ResponseWrapper response;
-        UsersDataSet user = servletUtils.getUser(req);
-
-        if (user != null) {
-            String iid;
-            try {
-                iid = req.getHeader("iid");
-                if (iid != null) {
-                    boolean deleted = dbService.deletePhoto(iid, user);
-                    if (deleted) {
-                        response = new ResponseWrapper(null, "", 200);
-                        dataBus.broadcastDeletePhoto(iid);
-                    } else {
-                        response = new ResponseWrapper(null, "Could not delete", 400);
-                    }
-                } else {
-                    response = new ResponseWrapper(null, "Missing iid", 400);
-                }
-            } catch (DBException e) {
-                e.printStackTrace();
-                response = new ResponseWrapper(null, "Server error", 500);
-            }
-        } else {
-            response = new ResponseWrapper(null, "Not authenticated", 401);
-        }
-
-        servletUtils.respond(resp, response);
-    }
 }

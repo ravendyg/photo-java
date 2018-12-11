@@ -1,6 +1,7 @@
 package AsyncHandlers;
 
 import DTO.CommentDTO;
+import DTO.DeletedCommentDTO;
 import DTO.ImageDTO;
 import DTO.RatingDTO;
 import Websockets.LongConnectionService;
@@ -35,6 +36,11 @@ public class DataBus {
 
     public void broacastNewComment(CommentDTO commentDTO) {
         String message = prepareMessage(commentDTO, EWSActions.NEW_COMMENT);
+        this.longConnectionService.sendMessage(message);
+    }
+
+    public void broadcastDeleteComment(DeletedCommentDTO deleted) {
+        String message = prepareMessage(deleted, EWSActions.DELETE_COMMENT);
         this.longConnectionService.sendMessage(message);
     }
 

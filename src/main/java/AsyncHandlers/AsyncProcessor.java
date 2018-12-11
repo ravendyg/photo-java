@@ -1,12 +1,14 @@
 package AsyncHandlers;
 
 import DTO.CommentDTO;
+import DTO.DeletedCommentDTO;
 import DTO.RatingDTO;
 import Websockets.IAsyncProcessor;
 import com.google.gson.JsonObject;
 import dbService.DBException;
 import dbService.DBService;
 import dbService.DataServices.CommentsDataSet;
+import dbService.DataServices.ImageDataSet;
 import dbService.DataServices.UsersDataSet;
 
 // TODO: where should it be?
@@ -35,6 +37,16 @@ public class AsyncProcessor implements IAsyncProcessor {
                     handleNewMessage(user, payload);
                     break;
                 }
+
+                case DELETE_COMMENT: {
+                    handleDeleteComment(user, payload);
+                    break;
+                }
+
+                case DELETE_PHOTO: {
+                    handleDeletePhoto(user, payload);
+                    break;
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -59,5 +71,22 @@ public class AsyncProcessor implements IAsyncProcessor {
         CommentsDataSet comment = dbService.createComment(user, iid, text);
         CommentDTO commentDTO = new CommentDTO(comment, iid);
         dataBus.broacastNewComment(commentDTO);
+    }
+
+    private void handleDeleteComment(UsersDataSet user, JsonObject payload) throws DBException{
+        String cid = payload.get("cid").getAsString();
+        CommentsDataSet comment = dbService.deleteComment(cid, user);
+        if (comment != null) {
+            DeletedCommentDTO deleted = new DeletedCommentDTO(comment);
+            dataBus.broadcastDeleteComment(deleted);
+        }
+    }
+
+    private void handleDeletePhoto(UsersDataSet user, JsonObject payload) throws DBException {
+        String iid = payload.get("iid").getAsString();
+        ImageDataSet image = dbService.deletePhoto(iid, user);
+        if (image != null) {
+            dataBus.broadcastDeletePhoto(iid);
+        }
     }
 }
