@@ -30,13 +30,29 @@ public class WSHandler implements ILongConnectionHandler {
         this.longConnectionService = longConnectionService;
         this.asyncProcessor = asyncProcessor;
 
-        String token = null;
+        String type = null;
         List<String> protocols = req.getSubProtocols();
         if (protocols != null && protocols.size() > 0) {
-            // auth token should always be the last one
-            token = protocols.get(protocols.size() - 1);
-            this.usersDataSet = servletUtils.getUser(token);
+            type = protocols.get(0);
+            if (type != null) {
+                resp.setHeader(WSHandler.tokenKey, type);
+            }
         }
+
+        String token = null;
+        String queries[] = req.getRequestURI().getQuery().split("\\?");
+        for (String query : queries) {
+            try {
+                String chunks[] = query.split("=");
+                if (chunks[0].equals("token")) {
+                    token = chunks[1];
+                    break;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        this.usersDataSet = servletUtils.getUser(token);
 
         if (this.usersDataSet == null) {
             try {
@@ -44,9 +60,6 @@ public class WSHandler implements ILongConnectionHandler {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }
-        if (token != null) {
-            resp.setHeader(WSHandler.tokenKey, token);
         }
     }
 
