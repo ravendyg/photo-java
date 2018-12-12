@@ -1,9 +1,6 @@
 package AsyncHandlers;
 
-import DTO.CommentDTO;
-import DTO.DeletedCommentDTO;
-import DTO.ImageDTO;
-import DTO.RatingDTO;
+import DTO.*;
 import Websockets.LongConnectionService;
 import com.google.gson.GsonBuilder;
 
@@ -41,6 +38,11 @@ public class DataBus {
 
     public void broadcastDeleteComment(DeletedCommentDTO deleted) {
         String message = prepareMessage(deleted, EWSActions.DELETE_COMMENT);
+        this.longConnectionService.sendMessage(message);
+    }
+
+    public void broadcastPatchPhoto(ImagePatchDTO imagePatchDTO) {
+        String message = prepareMessage(imagePatchDTO, EWSActions.PATCH_PHOTO);
         this.longConnectionService.sendMessage(message);
     }
 

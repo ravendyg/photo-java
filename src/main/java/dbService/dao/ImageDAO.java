@@ -34,6 +34,15 @@ public class ImageDAO {
         return (long) session.save(image);
     }
 
+    public ImageDataSet patch(String iid, String title, String description) {
+        ImageDataSet image = get(iid);
+        if (image != null) {
+            image.setTitle(title);
+            image.setDescription(description);
+        }
+        return image;
+    }
+
     public ImageDataSet delete(String iid, UsersDataSet user) {
         Criteria criteria = session.createCriteria(ImageDataSet.class);
         ImageDataSet image = ((ImageDataSet) criteria

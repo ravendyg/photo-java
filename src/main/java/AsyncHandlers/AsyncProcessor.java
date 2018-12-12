@@ -2,6 +2,7 @@ package AsyncHandlers;
 
 import DTO.CommentDTO;
 import DTO.DeletedCommentDTO;
+import DTO.ImagePatchDTO;
 import DTO.RatingDTO;
 import Websockets.IAsyncProcessor;
 import com.google.gson.JsonObject;
@@ -47,6 +48,11 @@ public class AsyncProcessor implements IAsyncProcessor {
                     handleDeletePhoto(user, payload);
                     break;
                 }
+
+                case PATCH_PHOTO: {
+                    handlePhotoPatch(user, payload);
+                    break;
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -60,17 +66,21 @@ public class AsyncProcessor implements IAsyncProcessor {
 
     private void handleRatingUpdate(UsersDataSet user, JsonObject payload) throws DBException {
         String iid = payload.get("iid").getAsString();
-        int rating = payload.get("rating").getAsInt();
-        RatingDTO ratingDTO = dbService.upsertRating(user, iid, rating);
-        dataBus.broadcastRating(ratingDTO);
+        Integer rating = payload.get("rating").getAsInt();
+        if (iid != null && rating != null) {
+            RatingDTO ratingDTO = dbService.upsertRating(user, iid, rating);
+            dataBus.broadcastRating(ratingDTO);
+        }
     }
 
     private void handleNewMessage(UsersDataSet user, JsonObject payload) throws  DBException {
         String iid = payload.get("iid").getAsString();
         String text = payload.get("text").getAsString();
-        CommentsDataSet comment = dbService.createComment(user, iid, text);
-        CommentDTO commentDTO = new CommentDTO(comment, iid);
-        dataBus.broacastNewComment(commentDTO);
+        if (iid != null && text != null) {
+            CommentsDataSet comment = dbService.createComment(user, iid, text);
+            CommentDTO commentDTO = new CommentDTO(comment, iid);
+            dataBus.broacastNewComment(commentDTO);
+        }
     }
 
     private void handleDeleteComment(UsersDataSet user, JsonObject payload) throws DBException{
@@ -87,6 +97,17 @@ public class AsyncProcessor implements IAsyncProcessor {
         ImageDataSet image = dbService.deletePhoto(iid, user);
         if (image != null) {
             dataBus.broadcastDeletePhoto(iid);
+        }
+    }
+
+    private void handlePhotoPatch(UsersDataSet user, JsonObject payload) throws DBException {
+        String iid = payload.get("iid").getAsString();
+        String description = payload.get("description").getAsString();
+        String title = payload.get("title").getAsString();
+        if (iid != null && description != null && title != null) {
+            ImageDataSet image = dbService.patchPhoto(iid, title, description);
+            ImagePatchDTO imagePatchDTO = new ImagePatchDTO(image);
+            dataBus.broadcastPatchPhoto(imagePatchDTO);
         }
     }
 }

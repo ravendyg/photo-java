@@ -218,6 +218,21 @@ public class DBService {
         }
     }
 
+    public ImageDataSet patchPhoto(String iid, String title, String description) throws DBException {
+        try {
+            Session session = sessionFactory.openSession();
+            Transaction transaction = session.beginTransaction();
+            ImageDAO imageDAO = new ImageDAO(session);
+            ImageDataSet image = imageDAO.patch(iid, title, description);
+            session.save(image);
+            transaction.commit();
+            session.close();
+            return image;
+        } catch (HibernateException e) {
+            throw new DBException(e);
+        }
+    }
+
     public ImageDataSet deletePhoto(String iid, UsersDataSet user) throws  DBException {
         try {
             Session session = sessionFactory.openSession();

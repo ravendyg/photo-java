@@ -77,6 +77,14 @@ public class ImageDataSet implements Serializable {
         return views;
     }
 
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
     @SuppressWarnings("UnusedDeclaration")
     public ImageDataSet() {}
 
