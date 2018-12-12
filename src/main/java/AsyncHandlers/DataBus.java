@@ -11,8 +11,8 @@ public class DataBus {
         this.longConnectionService = longConnectionService;
     }
 
-    public void broadcastAddView(String iid) {
-        String message = prepareMessage(iid, EWSActions.ADD_VIEW);
+    public void broadcastView(ViewDTO viewDTO) {
+        String message = prepareMessage(viewDTO, EWSActions.ADD_VIEW);
         this.longConnectionService.sendMessage(message);
     }
 

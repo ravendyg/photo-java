@@ -248,25 +248,27 @@ public class DBService {
     }
 
     public ViewDataSet addView(UsersDataSet user, String iid) throws DBException {
+        ViewDataSet view = null;
         try {
             Session session = sessionFactory.openSession();
             Transaction transaction = session.beginTransaction();
             ViewDAO viewDAO = new ViewDAO(session);
             ImageDAO imageDAO = new ImageDAO(session);
             ImageDataSet image = imageDAO.get(iid);
-            ViewDataSet view = new ViewDataSet(user, image);
-            viewDAO.add(view);
+            if (image.getUploadedBy().getId() == user.getId()) {
+                view = new ViewDataSet(user, image);
+                viewDAO.add(view);
+            }
             transaction.commit();
             session.close();
-            return view;
         } catch (HibernateException e) {
             int code = ((SQLException) e.getCause()).getErrorCode();
-            if (code == 1062) {
-                return null;
-            } else {
+            if (code != 1062) {
                 throw new DBException(e);
             }
         }
+
+        return view;
     }
 
     public RatingDTO upsertRating(UsersDataSet user, String iid, int rating) throws DBException{

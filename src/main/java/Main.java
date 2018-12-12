@@ -20,7 +20,6 @@ public class Main {
     final static String RATING_ROUTE = "/java/rating";
     final static String COMMENT_ROUTE = "/java/comment/*";
     final static String IMAGE_ROUTE = "/java/photo";
-    final static String VIEW_ROUTE = "/java/view";
     final static String WS_ROUTE = "/java/ws";
     final static String LP_ROUTE = "/java/lp";
 
@@ -53,7 +52,6 @@ public class Main {
                 servletUtils,
                 dataBus
         );
-        Servlet viewServlet = new ViewServlet(dbService, servletUtils, dataBus);
         Servlet ratingServlet = new RatingServlet(dbService, servletUtils, dataBus);
         Servlet commentServlet = new CommentServlet(dbService, servletUtils);
         Servlet webSocketServlet = new WebsocketServlet(
@@ -72,7 +70,6 @@ public class Main {
         contextHandler.addServlet(new ServletHolder(ratingServlet), RATING_ROUTE);
         contextHandler.addServlet(new ServletHolder(commentServlet), COMMENT_ROUTE);
         contextHandler.addServlet(new ServletHolder(imageProcessorServlet), IMAGE_ROUTE);
-        contextHandler.addServlet(new ServletHolder(viewServlet), VIEW_ROUTE);
         contextHandler.addServlet(new ServletHolder(webSocketServlet), WS_ROUTE);
         contextHandler.addServlet(new ServletHolder(longPolingServlet), LP_ROUTE);
 

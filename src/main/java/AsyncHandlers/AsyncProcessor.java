@@ -1,9 +1,6 @@
 package AsyncHandlers;
 
-import DTO.CommentDTO;
-import DTO.DeletedCommentDTO;
-import DTO.ImagePatchDTO;
-import DTO.RatingDTO;
+import DTO.*;
 import Websockets.IAsyncProcessor;
 import com.google.gson.JsonObject;
 import dbService.DBException;
@@ -11,6 +8,7 @@ import dbService.DBService;
 import dbService.DataServices.CommentsDataSet;
 import dbService.DataServices.ImageDataSet;
 import dbService.DataServices.UsersDataSet;
+import dbService.DataServices.ViewDataSet;
 
 // TODO: where should it be?
 public class AsyncProcessor implements IAsyncProcessor {
@@ -108,6 +106,15 @@ public class AsyncProcessor implements IAsyncProcessor {
             ImageDataSet image = dbService.patchPhoto(iid, title, description);
             ImagePatchDTO imagePatchDTO = new ImagePatchDTO(image);
             dataBus.broadcastPatchPhoto(imagePatchDTO);
+        }
+    }
+
+    private void handleView(UsersDataSet user, JsonObject payload) throws DBException {
+        String iid = payload.get("iid").getAsString();
+        if (iid != null) {
+            ViewDataSet view = dbService.addView(user, iid);
+            ViewDTO viewDTO = new ViewDTO(view);
+            dataBus.broadcastView(viewDTO);
         }
     }
 }
