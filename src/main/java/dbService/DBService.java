@@ -255,7 +255,7 @@ public class DBService {
             ViewDAO viewDAO = new ViewDAO(session);
             ImageDAO imageDAO = new ImageDAO(session);
             ImageDataSet image = imageDAO.get(iid);
-            if (image.getUploadedBy().getId() == user.getId()) {
+            if (image.getUploadedBy().getId() != user.getId()) {
                 view = new ViewDataSet(user, image);
                 viewDAO.add(view);
             }

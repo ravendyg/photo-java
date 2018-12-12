@@ -51,6 +51,11 @@ public class AsyncProcessor implements IAsyncProcessor {
                     handlePhotoPatch(user, payload);
                     break;
                 }
+
+                case ADD_VIEW: {
+                    handleView(user, payload);
+                    break;
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -113,8 +118,10 @@ public class AsyncProcessor implements IAsyncProcessor {
         String iid = payload.get("iid").getAsString();
         if (iid != null) {
             ViewDataSet view = dbService.addView(user, iid);
-            ViewDTO viewDTO = new ViewDTO(view);
-            dataBus.broadcastView(viewDTO);
+            if (view != null) {
+                ViewDTO viewDTO = new ViewDTO(view);
+                dataBus.broadcastView(viewDTO);
+            }
         }
     }
 }
